@@ -4,7 +4,8 @@ public class SchemaManager
 {
     public SchemaManager()
     {
-        new MultiObjectiveReplication();
+        new Blockchain();
+        //new MultiObjectiveReplication();
         //new Replication();
     }
 }

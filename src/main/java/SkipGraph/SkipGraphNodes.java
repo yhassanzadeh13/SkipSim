@@ -28,6 +28,11 @@ public abstract class SkipGraphNodes
      */
     public void Departure(int index, Transactions transactions)
     {
+        // Disallow the departure of the node holding the transaction 0.
+        if(transactions != null
+                && ((Transaction)transactions.getNode(0)).getOwnerIndex() == index) {
+            return;
+        }
         int lookupTablesize;
         /*
         Determining the lookup table size
@@ -50,18 +55,18 @@ public abstract class SkipGraphNodes
             /*
              Connecting successor and predecessor SkipGraph.Nodes together
             */
-            for (int i = 0; i < lookupTablesize; i++)
+            for (int level = 0; level < lookupTablesize; level++)
             {
-                int leftNeighbor = getNode(index).getLookup(i, 0);
-                int rightNeighbor = getNode(index).getLookup(i, 1);
+                int leftNeighbor = getNode(index).getLookup(level, 0);
+                int rightNeighbor = getNode(index).getLookup(level, 1);
 
                 if (leftNeighbor != -1)
                 {
-                    getNode(leftNeighbor).setLookup(i, 1, rightNeighbor);
+                    getNode(leftNeighbor).setLookup(level, 1, rightNeighbor);
                 }
                 if (rightNeighbor != -1)
                 {
-                    getNode(rightNeighbor).setLookup(i, 0, leftNeighbor);
+                    getNode(rightNeighbor).setLookup(level, 0, leftNeighbor);
                 }
             }
         }

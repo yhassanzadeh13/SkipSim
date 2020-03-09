@@ -1,19 +1,35 @@
 package SkipGraph;
 
+import Blockchain.LightChain.HashTools;
+import Blockchain.LightChain.Transaction;
 import DataTypes.Constants;
 import Simulator.SkipSimParameters;
 
+import java.util.Random;
+
+/**
+ * An abstract class representing a node in a skip-graph.
+ */
 public abstract class SkipGraphNode
 {
+    protected static Random sRandom = new Random();
+
+    /**
+     * Every node (except the inital node) is inserted into a skip-graph by an introducer. This
+     * denotes the introducer's index for this node.
+     */
     private int introducer;
+    /**
+     * The index of the node.
+     */
     protected int index;
     /**
-     * Numerical ID of the Nodes, non-negative integers
+     * Numerical ID of the Node, non-negative integers
      */
     protected int numID;
 
     /**
-     * name ID of the Nodes
+     * Name ID of the Node.
      */
     protected String nameID;
     /**
@@ -23,10 +39,36 @@ public abstract class SkipGraphNode
      */
     protected int[][] lookup;
 
+    /**
+     * Contains the hash of the transaction as a 32-bit integer.
+     * This hash value is calculated from the index.
+     */
+    private int hash;
+
     public SkipGraphNode()
     {
-        nameID = new String();
+        nameID = "";
+        index = 0;
+        calculateHashAndNumID();
         //lookup = new int[system.getLookupTableSize()][2];
+    }
+
+    /**
+     * Calculates the hash code of the transaction using the index. This should be invoked each time the index is changed.
+     */
+    private void calculateHashAndNumID() {
+        // If numerical id hashing is turned on, perform SHA3 hashing with the index as the input.
+        if(SkipSimParameters.NumIDHashing) {
+            // Appending a character at the end of the input to distinguish between transactions and nodes.
+            String input = "" + index + ((this instanceof Transaction) ? "t" : "n");
+            byte[] hashBytes = HashTools.hash(input);
+            // Compressing the 256 bit SHA3 hash into a 32 bit integer.
+            hash = HashTools.compressToInt(hashBytes);
+            numID = hash;
+        } else {
+            // Otherwise, simply substitute a random number as the hash.
+            hash = sRandom.nextInt(100);
+        }
     }
 
     public int getIndex()
@@ -37,25 +79,35 @@ public abstract class SkipGraphNode
     public void setIndex(int index)
     {
         this.index = index;
+        // Recalculate the hash.
+        calculateHashAndNumID();
     }
 
     public int getIntroducer()
     {
         return introducer;
     }
+
     public void setIntroducer(int index)
     {
         this.introducer = index;
     }
 
-    public int getNumID()
-    {
-        return numID;
+    public void setNumID(int numId) {
+        if(SkipSimParameters.NumIDHashing) {
+            // When hashing is on, explicit numerical id assignments are not allowed, as their numerical
+            // ids are their hash codes.
+            return;
+        }
+        this.numID = numId;
     }
 
-    public void setNumID(int numID)
-    {
-        this.numID = numID;
+    public int getNumID() {
+        if(SkipSimParameters.NumIDHashing) {
+            return hashCode();
+        } else {
+            return numID;
+        }
     }
 
     public int getLookup(int i, int j)
@@ -127,5 +179,16 @@ public abstract class SkipGraphNode
     public String toString()
     {
         return "SkipGraphNode: Index =  " + index + " Name ID = " + nameID  + " Numerical ID = " + numID ;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return (other instanceof SkipGraphNode) && hashCode() == other.hashCode();
     }
 }

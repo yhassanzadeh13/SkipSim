@@ -10,10 +10,7 @@ import DataTypes.Pair;
 import Simulator.AlgorithmInvoker;
 import Simulator.SkipSimParameters;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class SkipGraphOperations
 {
@@ -102,6 +99,15 @@ public class SkipGraphOperations
 
     }
 
+    /**
+     * Inserts a node into the given skip-graph with the given index.
+     * @param skipGraphNode the node to be inserted.
+     * @param skipGraphNodes the skip-graph to be inserted into.
+     * @param index the index of the node.
+     * @param dynamicNameID
+     * @param currentTime
+     * @return
+     */
     public int insert(SkipGraphNode skipGraphNode, SkipGraphNodes skipGraphNodes, int index, boolean dynamicNameID, int currentTime)
     {
         if (skipGraphNode instanceof Node)
@@ -351,7 +357,13 @@ public class SkipGraphOperations
 
     }
 
-
+    /**
+     * Inserts a node into the given skip-graph.
+     * @param skipGraphNode the node to be inserted.
+     * @param currentTime insertion time.
+     * @param nodeSet the skip-graph to be inserted into.
+     * @return the insertion status.
+     */
     public int insert(SkipGraphNode skipGraphNode, int currentTime, SkipGraphNodes nodeSet)
     {
 
@@ -479,8 +491,8 @@ public class SkipGraphOperations
             if (closestNodeIndex != -1)
             {
                 /*
-                There exists a successor for the block or transaction in the introducer Node
-                NOTE: successor needs to search leftward to find the Node, hence, the search is going to be directed on LEFT
+                There exists a successor for the block or transaction in the introducer Node (smaller numId than what we want to insert)
+                NOTE: successor needs to search rightward to find the Node, hence, the search is going to be directed on RIGHT
                  */
                 searchDirection = RIGHT_SEARCH_DIRECTION;
             }
@@ -491,14 +503,14 @@ public class SkipGraphOperations
                 if (closestNodeIndex != -1)
                 {
                 /*
-                There exists a predecessor for the block or transaction in the introducer Node
-                NOTE: predecessor needs to search rightward to find the Node, hence, the search is going to be directed on LEFT
+                There exists a predecessor for the block or transaction in the introducer Node (bigger numId than what we want to insert)
+                NOTE: predecessor needs to search leftward to find the Node, hence, the search is going to be directed on LEFT
                  */
                     searchDirection = LEFT_SEARCH_DIRECTION;
                 }
                 else
                 {
-                    System.err.println("SkipGraphOperations.java/There is no predecesspr or successor for the block or transaction on the blockchain");
+                    System.err.println("SkipGraphOperations.java/There is no predecessor or successor for the block or transaction on the blockchain");
                     searchDirection = -2; //Just to resolve a compilation error
                     System.exit(0);
                 }
@@ -548,7 +560,6 @@ public class SkipGraphOperations
             successor = nodeSet.getNode(searchResult).getLookup(0, 1);
         }
 
-
         int insertStatus = adaptiveInsert(skipGraphNode, predecessor, successor, nodeSet);
         //Node theNodeForDebug = mTopologyGenerator.mNodeSet.getNode(index);
         if (!lookupTableValidation(skipGraphNode, nodeSet)
@@ -578,6 +589,17 @@ public class SkipGraphOperations
     }
 
     //TODO can be simplified
+
+    /**
+     * Used as a subroutine by insertion methods. This method is used to insert a node into the levels
+     * of a skip-graph according to its name id. At each level i, a node should have neighbors that have
+     * common prefix length of at least i. This method makes sure that this is satisfied.
+     * @param skipGraphNode the node to be inserted.
+     * @param Left left neighbor of the node on the lowest level.
+     * @param Right right neighbor of the node on the lowest level.
+     * @param nodeSet the skip-graph to be inserted into.
+     * @return the insertion status.
+     */
     private int adaptiveInsert(SkipGraphNode skipGraphNode, int Left, int Right, SkipGraphNodes nodeSet)
     {
         /*
@@ -596,7 +618,7 @@ public class SkipGraphOperations
         if (Left != -1)
         {
             nodeSet.getNode(Left).setLookup(0, 1, skipGraphNode.getIndex());
-            visitedRightNodes.add(Left);
+            visitedLeftNodes.add(Left);
         }
         skipGraphNode.setLookup(0, 1, Right);
         if (Right != -1)
@@ -607,106 +629,84 @@ public class SkipGraphOperations
 
 
         int level = 0;
-        while (true)
+        while (level < lookupTableSize - 1)
         {
-            while (true)
+            //System.out.println("SkipGraphOperations.java: adaptive insert inner loop, Right " + Right + " Left " + Left);
+            // Finding left and right nodes with appropriate common prefix length...
+            while (Left != -1 && commonPrefixLength(nodeSet.getNode(Left).getNameID(), skipGraphNode.getNameID()) <= level)
             {
-                //System.out.println("SkipGraphOperations.java: adaptive insert inner loop, Right " + Right + " Left " + Left);
-                if (Left != -1)
+                int old = Left;
+                Left = nodeSet.getNode(Left).getLookup(level, 0);
+                //System.out.println("SkipGraphOperations.java: insertion inner loop, left was switched to " + Left );
+                //mTopologyGenerator.mNodeSet.getNode(index).printLookup();
+                if (visitedLeftNodes.contains(Left) || (Left != -1 && ((Node) nodeSet.getNode(Left)).isOffline()))
+                //Cycle checking in dynamic adversarial churn or offline neighbor
                 {
-                    //System.out.println("SkipGraphOperations.java: adaptive insert inner loop Node name ID " + mTopologyGenerator.mNodeSet.getNode(index).getNameID() + " Left name ID " + mTopologyGenerator.mNodeSet.getNode(Left).getNameID() + " level " + level
-                    //       + " common bits " + commonPrefixLength(mTopologyGenerator.mNodeSet.getNode(Left).getNameID(), mTopologyGenerator.mNodeSet.getNode(index).getNameID()));
-                    if (commonPrefixLength(nodeSet.getNode(Left).getNameID(), skipGraphNode.getNameID()) <= level)
+                    if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.DYNAMIC))
                     {
-                        Left = nodeSet.getNode(Left).getLookup(level, 0);
-                        //System.out.println("SkipGraphOperations.java: insertion inner loop, left was switched to " + Left );
-                        //mTopologyGenerator.mNodeSet.getNode(index).printLookup();
-                        if (visitedLeftNodes.contains(Left) || (Left != -1 && ((Node) nodeSet.getNode(Left)).isOffline()))
-                        //Cycle checking in dynamic adversarial churn or offline neighbor
+                        if (SkipSimParameters.getChurnType().equalsIgnoreCase(Constants.Churn.Type.ADVERSARIAL))
                         {
-                            if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.DYNAMIC))
-                            {
-                                if (SkipSimParameters.getChurnType().equalsIgnoreCase(Constants.Churn.Type.ADVERSARIAL))
-                                {
-                                    Left = -1;
-                                    break;
-                                }
-                                else
-                                {
-                                    System.err.println("SkipGraphOperations.java: cycle detected on visited left during non adversarial churn insertion");
-                                    System.exit(0);
-                                }
-                            }
-                            else
-                            {
-                                //System.err.println("SkipGraphOperations.java: cycle detected on visited lefts during non-dynamic simulation insertion");
-                                //System.exit(0);
-                            }
+                            Left = -1;
+                            break;
                         }
                         else
                         {
-                            if (Left != -1)
-                            {
-                                visitedLeftNodes.add(Left);
-                            }
+                            System.err.println("SkipGraphOperations.java: cycle detected on visited left during non adversarial churn insertion");
+                            System.exit(0);
                         }
                     }
                     else
                     {
-                        break;
+                        //System.err.println("SkipGraphOperations.java: cycle detected on visited lefts during non-dynamic simulation insertion");
+                        //System.exit(0);
                     }
                 }
-
-                if (Right != -1)
+                else
                 {
-                    //System.out.println("SkipGraphOperations.java: adaptive insert inner loop Node name ID " + mTopologyGenerator.mNodeSet.getNode(index).getNameID() + " Right name ID " + mTopologyGenerator.mNodeSet.getNode(Right).getNameID() + " level " + level
-                    //        + " common bits " + commonPrefixLength(mTopologyGenerator.mNodeSet.getNode(Right).getNameID(), mTopologyGenerator.mNodeSet.getNode(index).getNameID()));
-                    if (commonPrefixLength(nodeSet.getNode(Right).getNameID(), skipGraphNode.getNameID()) <= level)
+                    if (Left != -1)
                     {
-                        Right = nodeSet.getNode(Right).getLookup(level, 1);
-                        //System.out.println("SkipGraphOperations.java: insertion inner loop, right was switched to " + Right );
-                        //mTopologyGenerator.mNodeSet.getNode(index).printLookup();
-                        if (visitedRightNodes.contains(Right) || (Right != -1 && ((Node) nodeSet.getNode(Right)).isOffline()))
-                        {
-                            if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.DYNAMIC))
-                            {
-                                if (SkipSimParameters.getChurnType().equalsIgnoreCase(Constants.Churn.Type.ADVERSARIAL))
-                                {
-                                    Right = -1;
-                                    break;
-                                }
-                                else
-                                {
-                                    System.err.println("SkipGraphOperations.java: cycle detected on visited right during non adversarial churn insertion");
-                                    System.exit(0);
-                                }
-                            }
-                            else
-                            {
-                                System.err.println("SkipGraphOperations.java: cycle detected on visited right during non-dynamic simulation insertion");
-                                System.exit(0);
-                            }
-                        }
-                        else
-                        {
-                            if (Right != -1)
-                            {
-                                visitedRightNodes.add(Right);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        break;
+                        visitedLeftNodes.add(Left);
                     }
                 }
-                if (Right == -1 && Left == -1)
-                {
-                    break;
-                }
-
             }
 
+            while (Left == -1 && Right != -1
+                    && commonPrefixLength(nodeSet.getNode(Right).getNameID(), skipGraphNode.getNameID()) <= level)
+            {
+                int old = Right;
+                Right = nodeSet.getNode(Right).getLookup(level, 1);
+                //System.out.println("SkipGraphOperations.java: insertion inner loop, right was switched to " + Right );
+                //mTopologyGenerator.mNodeSet.getNode(index).printLookup();
+                if (visitedRightNodes.contains(Right) || (Right != -1 && ((Node) nodeSet.getNode(Right)).isOffline()))
+                {
+                    if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.DYNAMIC))
+                    {
+                        if (SkipSimParameters.getChurnType().equalsIgnoreCase(Constants.Churn.Type.ADVERSARIAL))
+                        {
+                            Right = -1;
+                            break;
+                        }
+                        else
+                        {
+                            System.err.println("SkipGraphOperations.java: cycle detected on visited right during non adversarial churn insertion");
+                            System.exit(0);
+                        }
+                    }
+                    else
+                    {
+                        System.err.println("SkipGraphOperations.java: cycle detected on visited right during non-dynamic simulation insertion");
+                        System.exit(0);
+                    }
+                }
+                else
+                {
+                    if (Right != -1)
+                    {
+                        visitedRightNodes.add(Right);
+                    }
+                }
+            }
+            // Climbing up...
             if (Left != -1)
             {
                 /*
@@ -719,7 +719,6 @@ public class SkipGraphOperations
                     if (level < lookupTableSize - 2)
                     {
                         int RightNeighbor = nodeSet.getNode(Left).getLookup(level + 1, 1);
-
                         nodeSet.getNode(Left).setLookup(level + 1, 1, skipGraphNode.getIndex());
                         if (RightNeighbor != -1)
                         {
@@ -728,6 +727,7 @@ public class SkipGraphOperations
 
                         //if((level != Simulator.system.getLookupTableSize() - 1) || mTopologyGenerator.mNodeSet.getNode(index).getLookup(level, 1) == -1)
                         {
+                            // Insert the node between left and right neighbor at the upper level.
                             skipGraphNode.setLookup(level + 1, 0, Left);
                             skipGraphNode.setLookup(level + 1, 1, RightNeighbor);
                             Right = RightNeighbor;
@@ -748,9 +748,7 @@ public class SkipGraphOperations
                 {
                     if (level < lookupTableSize - 2)
                     {
-                        int LeftNeighbor = -1;
-                        LeftNeighbor = nodeSet.getNode(Right).getLookup(level + 1, 0);
-
+                        int LeftNeighbor = nodeSet.getNode(Right).getLookup(level + 1, 0);
                         nodeSet.getNode(Right).setLookup(level + 1, 0, skipGraphNode.getIndex());
                         if (LeftNeighbor != -1)
                         {
@@ -766,22 +764,11 @@ public class SkipGraphOperations
                     }
                     level++; //Has to add to the DS version
                 }
+            } else {
+                break;
             }
-
             //level++ has to be removed from DS version
-            /*
-            The last level of lookup table met
-             */
-            if (level >= lookupTableSize)
-            {
-                break;
-            }
-            if (Left == -1 && Right == -1)
-            {
-                break;
-            }
         }
-
 
         if (skipGraphNode.isLookupTableEmpty(lookupTableSize))
         {
@@ -805,6 +792,9 @@ public class SkipGraphOperations
      */
     private boolean lookupTableValidation(SkipGraphNode node, SkipGraphNodes nodeSet)
     {
+        if(node.getIndex() > 0 && node.getLookup(0, 0) == -1 && node.getLookup(0, 1) == -1) {
+            return false;
+        }
         int nonZeroEnteries = 0;
         int numID = node.getNumID();
         for (int i = 0; i < SkipSimParameters.getLookupTableSize(); i++)
@@ -898,8 +888,22 @@ public class SkipGraphOperations
         }
     }
 
+    /**
+     * Performs a search in the given skip-graph with respect to the name id.
+     * @param searchTarget the target name id that needs to be searched.
+     * @param currentNode the node that the search is initiated from.
+     * @param nodeSet the set of nodes that the search needs to be performed on.
+     * @param Right the right neighbor of the initiator node at the current level.
+     * @param Left the left neighbor of the initiator node at the current level.
+     * @param Level the level at which the search needs to be started.
+     * @param m the piggyback message.
+     * @param resultSet the list of name ids that have been traversed before reaching to the result.
+     * @return the node that has the desired name id, -1 if it doesn't exist.
+     */
     public int SearchByNameID(String searchTarget, Node currentNode, SkipGraphNodes nodeSet, int Right, int Left, int Level, Message m, ArrayList<Integer> resultSet)
     {
+        nameIDsOnPath = new ArrayList<>();
+
         piggyBackLookupTable(currentNode.getIndex());
         m.piggyback(currentNode.getIndex(), mTopologyGenerator.mNodeSet);
 
@@ -1367,6 +1371,21 @@ public class SkipGraphOperations
 //    }
 
     //TODO current time needs to be added to piggybacked Message
+
+    /**
+     * Performs a search in the given skip-graph with respect to numerical ids, and returns the index of the node
+     * equal to (or which has the greatest numerical id smaller than) the target numerical id.
+     * @param targetNumId target numerical id that needs to be searched.
+     * @param currentNode the node that the search is initiated from.
+     * @param m the message.
+     * @param level the level that the search is performed from.
+     * @param currentTime current time.
+     * @param nodeSet the set of nodes that needs to be searched on.
+     * @param searchDirection the direction of search. If the target num id is greater than the initiator num id,
+     *                        search direction must be RIGHT, else LEFT.
+     * @return the index of the node that has a numerical id equal to targetNumId if it exists. Otherwise, the index
+     * of the node with the greatest numerical id smaller than the target numerical id is returned.
+     */
     public int SearchByNumID(int targetNumId, Node currentNode, Message m, int level, int currentTime, SkipGraphNodes nodeSet, int searchDirection)
     {
         if (level < 0)
@@ -1459,6 +1478,7 @@ public class SkipGraphOperations
         if ((nodeSet instanceof Nodes && currentNode.getNumID() < targetNumId)
                 || (closestTXBIndex != -1 && !(nodeSet instanceof Nodes) && closestTXBNumID < targetNumId))
         {
+            // Go right & down
             while (level >= 0)
             {
                 //System.out.println("SkipGraphOperations.java: SearchByNumID level " + level);
@@ -1487,11 +1507,26 @@ public class SkipGraphOperations
                  */
                 else if (closestTXBIndex != -1)
                 {
+                    /**
+                     *  int leftNeighborOwner = ((Transaction) nodeSet.getNode(leftNeighborOnBlockchain)).getOwnerIndex();
+                     *                         int mostSimilarInLeftNeighborsOwner = ((Node) mTopologyGenerator.mNodeSet.getNode(leftNeighborOwner)).mostSimilarTXB(nodeSet, targetNumId, m, LEFT_SEARCH_DIRECTION, level);
+                     *                         if(mostSimilarInLeftNeighborsOwner != -1) {
+                     *                             Left = leftNeighborOwner;
+                     *                             closestTXBIndex = mostSimilarInLeftNeighborsOwner;
+                     *                         }
+                     */
+                    Right = -1;
                     int rightNeighborOnBlockchain = nodeSet.getNode(closestTXBIndex).getLookup(level, 1);
                     if (rightNeighborOnBlockchain != -1)
                     {
-                        Right = ((Transaction) nodeSet.getNode(rightNeighborOnBlockchain)).getOwnerIndex();
-                        closestTXBIndex = ((Node) mTopologyGenerator.mNodeSet.getNode(Right)).mostSimilarTXB(nodeSet, targetNumId, m, RIGHT_SEARCH_DIRECTION, level);
+                        int rightNeighborOwner = ((Transaction) nodeSet.getNode(rightNeighborOnBlockchain)).getOwnerIndex();
+                        int mostSimilarInRightNeighborsOwner = ((Node) mTopologyGenerator.mNodeSet.getNode(rightNeighborOwner))
+                                .mostSimilarTXB(nodeSet, targetNumId, m, RIGHT_SEARCH_DIRECTION, level);
+                        if(mostSimilarInRightNeighborsOwner != -1) {
+                            Right = rightNeighborOwner;
+                            closestTXBIndex = mostSimilarInRightNeighborsOwner;
+                            closestTXBNumID = ((Transaction) nodeSet.getNode(closestTXBIndex)).getNumID();
+                        }
                     }
                 }
 
@@ -1535,6 +1570,7 @@ public class SkipGraphOperations
         else if ((nodeSet instanceof Nodes && currentNode.getNumID() >= targetNumId)
                 || (closestTXBIndex != -1 && !(nodeSet instanceof Nodes) && closestTXBNumID >= targetNumId))
         {
+            // Go left & down
             while (level >= 0)
             {
                 //System.out.println("SkipGraphOperations.java: SearchByNumID level " + level);
@@ -1563,11 +1599,18 @@ public class SkipGraphOperations
                  */
                 else if (closestTXBIndex != -1)
                 {
+                    Left = -1;
                     int leftNeighborOnBlockchain = nodeSet.getNode(closestTXBIndex).getLookup(level, 0);
                     if (leftNeighborOnBlockchain != -1)
                     {
-                        Left = ((Transaction) nodeSet.getNode(leftNeighborOnBlockchain)).getOwnerIndex();
-                        closestTXBIndex = ((Node) mTopologyGenerator.mNodeSet.getNode(Left)).mostSimilarTXB(nodeSet, targetNumId, m, LEFT_SEARCH_DIRECTION, level);
+                        int leftNeighborOwner = ((Transaction) nodeSet.getNode(leftNeighborOnBlockchain)).getOwnerIndex();
+                        int mostSimilarInLeftNeighborsOwner = ((Node) mTopologyGenerator.mNodeSet.getNode(leftNeighborOwner))
+                                .mostSimilarTXB(nodeSet, targetNumId, m, LEFT_SEARCH_DIRECTION, level);
+                        if(mostSimilarInLeftNeighborsOwner != -1) {
+                            Left = leftNeighborOwner;
+                            closestTXBIndex = mostSimilarInLeftNeighborsOwner;
+                            closestTXBNumID = ((Transaction) nodeSet.getNode(closestTXBIndex)).getNumID();
+                        }
                     }
                 }
 
@@ -1767,6 +1810,10 @@ public class SkipGraphOperations
 //    }
 
 
+    /**
+     * Returns the topology generator stored in this SkipGraphOperations object.
+     * @return the topology generator.
+     */
     public TopologyGenerator getTG()
     {
         return mTopologyGenerator;

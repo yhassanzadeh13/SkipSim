@@ -184,9 +184,9 @@ public class SimulationDB extends SQLiteJDBC
 
     }
 
-    public void saveChurnLogToDB(ArrayList<ChurnDBEntery> churnLog, int top_id, int currentTime)
+    public void saveChurnLogToDB(ArrayList<ChurnDBEntry> churnLog, int top_id, int currentTime)
     {
-        for (ChurnDBEntery entery : churnLog)
+        for (ChurnDBEntry entery : churnLog)
         {
             ArrayList<String> parameters = new ArrayList<>();
             parameters.add(Integer.toString(top_id));
@@ -212,9 +212,9 @@ public class SimulationDB extends SQLiteJDBC
      * @param currentTime current time of simulation
      * @return the churnLog of Nodes who arrive to the system between currentTime and currentTime + 1
      */
-    public ArrayList<ChurnDBEntery> fetchChurnLogFromDB(int top_id, int currentTime)
+    public ArrayList<ChurnDBEntry> fetchChurnLogFromDB(int top_id, int currentTime)
     {
-        ArrayList<ChurnDBEntery> churnLog = new ArrayList<>();
+        ArrayList<ChurnDBEntry> churnLog = new ArrayList<>();
 
         ArrayList<String> parameters = new ArrayList<>();
         parameters.add(Integer.toString(currentTime));
@@ -234,7 +234,7 @@ public class SimulationDB extends SQLiteJDBC
                 int nodeIndex = resultSet.getInt(ChurnDBSchema.Columns.NODE_INDEX);
                 double arrivalTime = resultSet.getDouble(ChurnDBSchema.Columns.ARRIVAL_TIME);
                 double sessionLength = resultSet.getDouble(ChurnDBSchema.Columns.SESSION_LENGTH);
-                churnLog.add(new ChurnDBEntery(nodeIndex, arrivalTime, sessionLength));
+                churnLog.add(new ChurnDBEntry(nodeIndex, arrivalTime, sessionLength));
             }
         }
         catch (Exception ex)
