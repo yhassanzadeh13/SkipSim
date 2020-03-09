@@ -1,6 +1,7 @@
 package SkipGraph;
 
 import AvailabilityPrediction.*;
+import Blockchain.LightChain.HashTools;
 import Blockchain.LightChain.Transaction;
 import Blockchain.LightChain.Transactions;
 import ChurnStabilization.BucketItem;
@@ -90,7 +91,7 @@ public class Node extends SkipGraphNode implements Serializable
     /**
      * Set of all transactions that this Node holds
      */
-    private HashSet<Integer> txSet;
+    private HashSet<Integer> txSet = new HashSet<>();
 
     private AvailabilityPrediction mAvailabilityPredictor;
     /**
@@ -109,6 +110,22 @@ public class Node extends SkipGraphNode implements Serializable
      * local table about the anotherNode
      */
     private double[] localNumberOfUpdatesTable;
+
+    /**
+     * Determines whether the node is malicious or not. We assume that a malicious node cannot perform
+     * routing attacks, but it can forge transactions and ill-formed views.
+     */
+    private boolean malicious;
+
+    /**
+     * A set of Nodes that share their view with this node.
+     */
+    private Set<Node> viewIntroducers = new HashSet<>(SkipSimParameters.getValidatorThreshold());;
+
+    /**
+     * A list of honest Nodes that are accepted as view introducers
+     */
+    private List<Node> honestViewIntroducers = new ArrayList<>(SkipSimParameters.getSignatureThreshold());;
 
     public Node(int nodeIndex)
     {
@@ -171,6 +188,7 @@ public class Node extends SkipGraphNode implements Serializable
         dataRequesterIDSet = new HashSet<>();
         replicaIDSet = new HashSet<>();
         isOnline = false;
+        malicious = false;
         correspondingReplica = new Hashtable<>();
         //availabilityTable = new double[Simulator.system.getNumIDSeed()][Simulator.system.getTimeSlot()];
         //availabilityCheckTable = new int[Simulator.system.getTimeSlot()];
@@ -188,7 +206,6 @@ public class Node extends SkipGraphNode implements Serializable
 
         //numberOfUpdates = new int[Simulator.system.getSystemCapacity()];
 
-
         /*
         Assigning the numerical ID
          */
@@ -200,9 +217,6 @@ public class Node extends SkipGraphNode implements Serializable
         {
             numID = Nodes.getRandomNumID(nodeIndex);
         }
-
-
-
 
         /*
         Initializing the lookup table
@@ -226,6 +240,76 @@ public class Node extends SkipGraphNode implements Serializable
     }
 
     /**
+     * Once a node is introduced into the system (i.e. it goes online), it tries to construct a view of the
+     * network. This is done by acquiring SignatureThreshold (T) many "honest view introducers" that share
+     * their view of the system with this node.
+     * @param sgo SkipGraphOperation object that holds the Nodes skip-graph.
+     */
+    public void acquireViewIntroducers(SkipGraphOperations sgo) {
+        int i = 1;
+        // We perform (ideally) ValidatorThreshold (Alpha) many searches over the Nodes skip-graph to acquire
+        // Alpha many unique nodes to act as view introducers.
+        for(; viewIntroducers.size() < SkipSimParameters.getValidatorThreshold(); i++) {
+            if(i > sgo.getTG().getNodeSet().getNumberOfOnlineNodes()) {
+//                System.err.println("Node.java: not enough online nodes to choose as view introducers" +
+//                        " for node " + getIndex() + " with num. id " + getNumID());
+                break;
+            }
+            // At each search iteration, we perform a search for a node with the numerical
+            // id of hash(numId || i).
+            String hashInput = "" + getNumID() + i;
+            byte[] targetNumIdBytes = HashTools.hash(hashInput);
+            int targetNumId = HashTools.compressToInt(targetNumIdBytes);
+            // Determine the search direction.
+            int searchDirection = (targetNumId < getNumID())
+                    ? SkipGraphOperations.LEFT_SEARCH_DIRECTION
+                    : SkipGraphOperations.RIGHT_SEARCH_DIRECTION;
+            // Perform the search & acquire the node.
+            int searchResultIndex = sgo.SearchByNumID(targetNumId,
+                    this,
+                    new Message(),
+                    SkipSimParameters.getLookupTableSize() - 1,
+                    0,
+                    sgo.getTG().getNodeSet(),
+                    searchDirection);
+            Node viewIntroducer = (Node) sgo.getTG().getNodeSet().getNode(searchResultIndex);
+            // Put the view introducer into the set.
+            viewIntroducers.add(viewIntroducer);
+        }
+
+        // In case we have acquired repetitive results from our searches, we may have need to perform
+        // extra searches.
+        int extraSearches = i - SkipSimParameters.getValidatorThreshold();
+        if(extraSearches > 0) {
+//            System.err.println("Node.java: " + extraSearches + " many extra searches are performed during " +
+//                    "randomized bootstrapping for node " + getIndex() + " with num. id " + getNumID());
+        }
+        // Iterate through acquired view introducers and put the honest ones in a separate list. We need
+        // SignatureThreshold (T) many honest introducers.
+        for(Node viewIntroducer : viewIntroducers) {
+            if(honestViewIntroducers.size() == SkipSimParameters.getSignatureThreshold())
+                break;
+            if(!viewIntroducer.isMalicious()) {
+                honestViewIntroducers.add(viewIntroducer);
+            }
+        }
+    }
+
+    /**
+     * Returns the set of unique view introducers that this node has acquired.
+     * @return the set of unique view introducers.
+     */
+    public Set<Node> getViewIntroducers() {
+        return viewIntroducers;
+    }
+
+    /**
+     * Returns the list of honest view introducers that this node was able to acquire.
+     * @return the list of honest view introducers.
+     */
+    public List<Node> getHonestViewIntroducers() { return honestViewIntroducers; }
+
+    /**
      * Computes the latency between this and other nodes as their Euclidean distance in Coordination
      *
      * @param other the other node, which we are interested to measure latency with respect to this node
@@ -241,6 +325,10 @@ public class Node extends SkipGraphNode implements Serializable
         return mAvailabilityPredictor;
     }
 
+    /**
+     * Returns whether the online is or not. In a static simulation (no churn) every node is always online.
+     * @return True if the nodes is online, False otherwise.
+     */
     public boolean isOnline()
     {
         if(SkipSimParameters.isStaticSimulation())
@@ -258,6 +346,18 @@ public class Node extends SkipGraphNode implements Serializable
         return isOnline;
     }
 
+    /**
+     * Returns whether the node is malicious or not.
+     * @return true if malicious, false if honest.
+     */
+    public boolean isMalicious() {
+        return malicious;
+    }
+
+    /**
+     * Returns whether the node is offline or not.
+     * @return true if offline, false if online.
+     */
     public boolean isOffline()
     {
         if (!SkipSimParameters.getSimulationType().equals(Constants.SimulationType.DYNAMIC) && !SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN))
@@ -279,6 +379,10 @@ public class Node extends SkipGraphNode implements Serializable
     public void setOffline()
     {
         isOnline = false;
+    }
+
+    public void setMalicious(boolean malicious) {
+        this.malicious = malicious;
     }
 
     public boolean isTestedForALandmark()
@@ -500,6 +604,7 @@ public class Node extends SkipGraphNode implements Serializable
         {
             replicaIDSet = new HashSet<>();
         }
+
         if (replicaIDSet.contains(dataOwnerIndex))
         {
             /*
@@ -600,27 +705,6 @@ public class Node extends SkipGraphNode implements Serializable
         return arrivalTime;
     }
 
-
-    public int getIndex()
-    {
-        return index;
-    }
-
-    public void setIndex(int i)
-    {
-        index = i;
-    }
-
-
-    public int getNumID()
-    {
-        return numID;
-    }
-
-    public void setNumID(int value)
-    {
-        numID = value;
-    }
 
 
     public int neighborNumber()
@@ -1190,7 +1274,7 @@ public class Node extends SkipGraphNode implements Serializable
         {
             return -1;
         }
-        int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        int item = random.nextInt(size);
         int i = 0;
         for (int txIndex : txSet)
         {

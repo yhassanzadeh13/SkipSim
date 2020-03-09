@@ -1,10 +1,11 @@
 package Simulator;
 
+import Blockchain.LightChain.Experiments.*;
 import Blockchain.LightChain.Transaction;
 import ChurnStabilization.ChurnStochastics;
 import ChurnStabilization.Interlace;
 import ChurnStabilization.LookupEvaluation;
-import DataBase.ChurnDBEntery;
+import DataBase.ChurnDBEntry;
 import DataTypes.Constants;
 import Evaluation.ReplicationEvaluation;
 import NameIDAssignment.NameIDAssignment;
@@ -28,7 +29,7 @@ public class DynamicSimulation
     LookupEvaluation mSkipGraphLookupEvaluation;
     Blockchain.LightChain.LookupEvaluation mBlockchainLookupEvaluation;
 
-    public DynamicSimulation(SkipGraph.SkipGraphOperations sgo)
+    public DynamicSimulation(SkipGraphOperations sgo)
     {
         mSkipGraphLookupEvaluation = new LookupEvaluation();
         if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN))
@@ -38,7 +39,7 @@ public class DynamicSimulation
         if (!AlgorithmInvoker.isNameIDAssignmentDynamic())
         {
             throw new IllegalStateException("Dynamic Simulation Error: Cannot perform dynamic simulation with static name id assignment "
-                    + "\n change the name id assignment in confix.txt to one of the dynamic algorithms, DPAD is recommended.");
+                    + "\n change the name id assignment in config.txt to one of the dynamic algorithms, DPAD is recommended.");
         }
         else
         {
@@ -47,8 +48,17 @@ public class DynamicSimulation
         }
     }
 
-    public SkipGraphOperations Simulate(boolean generatingTopology, int currentTime, ArrayList<ChurnDBEntery> churnLog)
+    public SkipGraphOperations Simulate(boolean generatingTopology, int currentTime, ArrayList<ChurnDBEntry> churnLog)
     {
+
+        // Initialize and mark the malicious nodes at the beginning of the simulation.
+        if(currentTime == 0) {
+            int maliciousAmount = (int) (SkipSimParameters.getSystemCapacity() * SkipSimParameters.MaliciousFraction);
+            for(int i = 0; i < SkipSimParameters.getSystemCapacity(); i++) {
+                // Mark the node as malicious if it is among the first maliciousAmount many nodes.
+                ((Node)sgo.getTG().getNodeSet().getNode(i)).setMalicious(i < maliciousAmount);
+            }
+        }
 
         //if (system.isLog())
         System.out.println("Current time: " + currentTime + " Topology index " + SkipSimParameters.getCurrentTopologyIndex());
@@ -71,8 +81,9 @@ public class DynamicSimulation
         /*
         Handling the randomized searches if needed for dynamic replication, churn stabilization, and blockchain
          */
-        randomizedSearches(currentTime);
-
+        if(SkipSimParameters.RandomizedLookupTests) {
+            randomizedSearches(currentTime);
+        }
 
         /*
         If Simulator.system reaches the replication time, the dynamic replication algorithm is called given the replication time
@@ -172,16 +183,55 @@ public class DynamicSimulation
         /*
         Blockchain
          */
+
         if (SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN))
         {
+
             for (int i = 0; i < SkipSimParameters.getSystemCapacity(); i++)
             {
-                if (((Node) sgo.getTG().mNodeSet.getNode(i)).isOnline())
+                Node peer = ((Node) sgo.getTG().mNodeSet.getNode(i));
+                if (peer.isOnline())
                 {
                     Transaction tx = new Transaction(0, i);
                     sgo.addTXBtoLedger(tx, currentTime, true);
+                    tx.acquireValidators(sgo);
+                    // Inform the malicious success experiment that a malicious peer has created a transaction
+                    // and acquired validators.
+                    if(SkipSimParameters.MaliciousSuccessExperiment)
+                    {
+                        MaliciousSuccessExperiment.informAcquisition(peer, tx, currentTime);
+                    }
+                    if(SkipSimParameters.EfficiencyExperiment)
+                    {
+                        EfficiencyExperiment.informAcquisition(peer, tx, currentTime);
+                    }
+                    if(SkipSimParameters.AvailabilityExperiment)
+                    {
+                        AvailabilityExperiment.registerTransaction(peer, tx, currentTime);
+                    }
                     //System.out.println("Node " + i + "added a new transaction");
                 }
+            }
+            /*
+            Performing experiments.
+             */
+            if(SkipSimParameters.MaliciousSuccessExperiment) {
+                MaliciousSuccessExperiment.calculateResults(currentTime);
+            }
+            if(SkipSimParameters.EfficiencyExperiment) {
+                EfficiencyExperiment.calculateResults(currentTime);
+            }
+            if(SkipSimParameters.AvailabilityExperiment) {
+                AvailabilityExperiment.calculateResults(currentTime);
+            }
+            if(SkipSimParameters.OnlineProbabilityExperiment) {
+                OnlineProbabilityExperiment.calculateResults(sgo, currentTime);
+            }
+            if(SkipSimParameters.btsEfficiencyExperiment) {
+                BtsEfficiencyExperiment.calculateResults(currentTime);
+            }
+            if(SkipSimParameters.btsMaliciousSuccessExperiment) {
+                BtsMaliciousSuccessExperiment.calculateResults(currentTime);
             }
         }
 
@@ -302,18 +352,18 @@ public class DynamicSimulation
      * @param currentTime current time of the simulation
      * @param churnLog    the churn log that is associated with the current time
      */
-    private void loadChurnLog(int currentTime, ArrayList<ChurnDBEntery> churnLog)
+    private void loadChurnLog(int currentTime, ArrayList<ChurnDBEntry> churnLog)
     {
         if (currentTime == 0)
         {
             previousArrivalTime = 0;
         }
-        for (ChurnDBEntery entery : churnLog)
+        for (ChurnDBEntry entry : churnLog)
         {
-            int arrivalNodeIndex = entery.getNodeIndex();
+            int arrivalNodeIndex = entry.getNodeIndex();
             Node arrivingNode = (Node) sgo.getTG().mNodeSet.getNode(arrivalNodeIndex);
             arrivingNode.setOnline();
-            arrivingNode.setSessionLength(entery.getSessionLength(), currentTime);
+            arrivingNode.setSessionLength(entry.getSessionLength(), currentTime);
             ChurnStochastics.updateTotalAverageSessionLength(arrivingNode.getSessionLength());
             /*
             Only assigns name ID if it has not been assigned previously.
@@ -337,12 +387,24 @@ public class DynamicSimulation
              */
             printArrivalInfo(arrivingNode, currentTime);
 
-            ChurnStochastics.updateTotalAverageInterArrivalTime(entery.getArrivalTime() - previousArrivalTime);
-            previousArrivalTime = entery.getArrivalTime();
+            ChurnStochastics.updateTotalAverageInterArrivalTime(entry.getArrivalTime() - previousArrivalTime);
+            previousArrivalTime = entry.getArrivalTime();
+
+            // Let the node acquire its view introducers to construct its view.
+            if(SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
+                    && SkipSimParameters.RandomizedBootstrapping) {
+                arrivingNode.acquireViewIntroducers(sgo);
+                if(SkipSimParameters.btsEfficiencyExperiment) {
+                    BtsEfficiencyExperiment.informIntroduction(arrivingNode, currentTime);
+                }
+                if(SkipSimParameters.btsMaliciousSuccessExperiment) {
+                    BtsMaliciousSuccessExperiment.informIntroduction(arrivingNode, currentTime);
+                }
+            }
         }
     }
 
-    private ArrayList<ChurnDBEntery> generateTopology(int currentTime, ArrayList<ChurnDBEntery> churnLog)
+    private ArrayList<ChurnDBEntry> generateTopology(int currentTime, ArrayList<ChurnDBEntry> churnLog)
     {
         if (currentTime == 0)
         {
@@ -382,7 +444,7 @@ public class DynamicSimulation
                     arrivingNode.setNameID(AlgorithmInvoker.dynamicNameIDAssignment(arrivingNode, sgo, arrivalNodeIndex));
                 }
                 sgo.insert(arrivingNode, sgo.getTG().mNodeSet, arrivalNodeIndex, AlgorithmInvoker.isNameIDAssignmentDynamic(), currentTime);
-                churnLog.add(new ChurnDBEntery(arrivalNodeIndex, sgo.getTG().getNextArrivalTime(), arrivingNode.getSessionLength()));
+                churnLog.add(new ChurnDBEntry(arrivalNodeIndex, sgo.getTG().getNextArrivalTime(), arrivingNode.getSessionLength()));
 
                 /*
                 print the arrival info of the arriving Node if the simulation is enabled with isLog
@@ -390,6 +452,19 @@ public class DynamicSimulation
                 printArrivalInfo(arrivingNode, currentTime);
                 ChurnStochastics.updateTotalAverageInterArrivalTime(currentTime - previousArrivalTime);
                 previousArrivalTime = currentTime;
+
+
+                // Let the node acquire its view introducers to construct its view.
+                if(SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
+                        && SkipSimParameters.RandomizedBootstrapping) {
+                    arrivingNode.acquireViewIntroducers(sgo);
+                    if(SkipSimParameters.btsEfficiencyExperiment) {
+                        BtsEfficiencyExperiment.informIntroduction(arrivingNode, currentTime);
+                    }
+                    if(SkipSimParameters.btsMaliciousSuccessExperiment) {
+                        BtsMaliciousSuccessExperiment.informIntroduction(arrivingNode, currentTime);
+                    }
+                }
             }
             arrivalNodeIndex = sgo.getTG().randomlyPickOffline();
             arrivingNode = (Node) sgo.getTG().mNodeSet.getNode(arrivalNodeIndex);

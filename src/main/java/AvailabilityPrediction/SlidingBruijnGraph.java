@@ -11,7 +11,7 @@ public class SlidingBruijnGraph extends AvailabilityPrediction
      * min of center and right graphs, respectively.
      */
     private final double IMPROVMENT_THRESHOLD = 0.05;
-    private final int MAX_RIGHT_SIZE = 20;
+    private final int MAX_RIGHT_SIZE = 7;
 
     /**
      * pointer to the left DBG in the current state window

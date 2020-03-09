@@ -1,12 +1,10 @@
 package Simulator;
 
-import DataBase.ChurnDBEntery;
+import DataBase.ChurnDBEntry;
 import DataBase.SimulationDB;
 import DataTypes.Constants;
 import LandmarkPlacement.landmarkSimulation;
-import SimulationSchema.MultiObjectiveReplication;
 import SimulationSchema.SchemaManager;
-import SimulationSchema.StaticReplication;
 import SkipGraph.Node;
 import SkipGraph.SkipGraphOperations;
 import javafx.animation.AnimationTimer;
@@ -46,7 +44,9 @@ public class GUI extends Application
      * TRUE: if the simulation type is blockchain, false otherwise
      */
     private boolean isBlockChain;
-
+    public static void main(String[] args) {
+        launch(args);
+    }
     public static String infoBox(String title, String message)
     {
         // a jframe here isn't strictly necessary, but it makes the example a little more real
@@ -63,6 +63,7 @@ public class GUI extends Application
     @Override
     public void start(Stage window)
     {
+    	
         new SchemaManager();
         simDB = new SimulationDB();
         //Todo ready to relinquish
@@ -76,7 +77,7 @@ public class GUI extends Application
                 /*
         Determines whether the simulation is blockchain or not based on the value of the simulationType in system class
          */
-        isBlockChain = SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN) ? true : false;
+        isBlockChain = SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN);
         isReplica = new boolean[SkipSimParameters.getSystemCapacity()];
 
         Canvas canvas = new Canvas(660, 660);
@@ -224,7 +225,7 @@ public class GUI extends Application
                             for (int time = 0; time < SkipSimParameters.getLifeTime(); time++)
                             {
                                 DynamicSimulation ds = new DynamicSimulation(sgo);
-                                ArrayList<ChurnDBEntery> churnLog = new ArrayList<>();
+                                ArrayList<ChurnDBEntry> churnLog = new ArrayList<>();
                                 sgo = ds.Simulate(Constants.Topology.GENERATE, time, churnLog);
                                 simDB.saveChurnLogToDB(churnLog, top_id, time);
                                 timeBar.setProgress((float) time / SkipSimParameters.getLifeTime());
@@ -238,7 +239,7 @@ public class GUI extends Application
 //                            for (int time = 0; time < system.getLifeTime(); time++)
 //                            {
 //                                BlockchainSimulation bs = new BlockchainSimulation(sgo);
-//                                ArrayList<ChurnDBEntery> churnLog = new ArrayList<>();
+//                                ArrayList<ChurnDBEntry> churnLog = new ArrayList<>();
 //                                sgo = bs.Simulate(Constants.Topology.GENERATE, time, churnLog);
 //                                simDB.saveChurnLogToDB(churnLog, top_id, time);
 //                                timeBar.setProgress((float) time / system.getLifeTime());
@@ -347,7 +348,7 @@ public class GUI extends Application
                         int top_id = simDB.fetchTopologyIDFromDB(SkipSimParameters.getCurrentTopologyIndex(), simulationName);
                         for (int time = 0; time < SkipSimParameters.getLifeTime(); time++)
                         {
-                            ArrayList<ChurnDBEntery> churnLog = simDB.fetchChurnLogFromDB(top_id, time);
+                            ArrayList<ChurnDBEntry> churnLog = simDB.fetchChurnLogFromDB(top_id, time);
                             DynamicSimulation ds = new DynamicSimulation(sgo);
                             sgo = ds.Simulate(Constants.Topology.LOAD, time, churnLog);
                             timeBar.setProgress((float) time / SkipSimParameters.getLifeTime());
@@ -362,7 +363,7 @@ public class GUI extends Application
 //                        //SignatureLookupTable slt = new SignatureLookupTable();
 //                        for (int time = 0; time < system.getLifeTime(); time++)
 //                        {
-//                            ArrayList<ChurnDBEntery> churnLog = simDB.fetchChurnLogFromDB(top_id, time);
+//                            ArrayList<ChurnDBEntry> churnLog = simDB.fetchChurnLogFromDB(top_id, time);
 //                            BlockchainSimulation bs = new BlockchainSimulation(sgo);
 //                            sgo = bs.Simulate(Constants.Topology.LOAD, time, churnLog);
 //                            timeBar.setProgress((float) time / system.getLifeTime());

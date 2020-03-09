@@ -4,6 +4,103 @@ import DataTypes.Constants;
 
 public class SkipSimParameters
 {
+
+    /**
+     * Boolean flag determining whether randomized lookup tests should be performed at the beginning
+     * of each time slot.
+     */
+    public static final boolean RandomizedLookupTests = false;
+    /**
+     * Boolean flag determining whether the numerical ids of the nodes are computed by a hash
+     * function using their indexes as input. Proof-of-Validation and randomized bootstrapping
+     * requires this to be true.
+     */
+    public static final boolean NumIDHashing = true;
+
+    //////////////////////////////////////Consensus/////////////////////////////////////////
+
+    /**
+     * ValidatorThreshold determines how many validators will be searched on the Nodes skip-graph
+     * for the validator acquisition for transactions (Proof-of-Validation). Also, this determines
+     * how many view introducers will be searched on the Nodes skip-graph for randomized bootstrapping.
+     */
+    public static int ValidatorThreshold = 1;
+    /**
+     * SignatureThreshold determines how many validators are required to sign a transaction. If an
+     * honest node acquires this many honest validators, the valid transaction is successfully validated.
+     * If a malicious node acquires this many malicious validators, an attack has been successfully
+     * performed by introducing an invalid transaction to the skip-graph.
+     *
+     * This parameter also determines the amount of honest view introducers required to form a view of
+     * the network. This many malicious view introducers will provide an invalid view for the node.
+     */
+    public static int SignatureThreshold = 1;
+
+    public static int getValidatorThreshold() {
+        return ValidatorThreshold;
+    }
+
+    public static int getSignatureThreshold() {
+        return SignatureThreshold;
+    }
+
+    public static void setValidatorThreshold(int validatorThreshold) {
+        ValidatorThreshold = validatorThreshold;
+    }
+
+    public static void setSignatureThreshold(int signatureThreshold) {
+        SignatureThreshold = signatureThreshold;
+    }
+
+    /**
+     * The fraction of malicious nodes to all the nodes. The nodes that have an index in [0, MaliciousFraction*SystemCapacity)
+     * will be chosen as malicious.
+    */
+
+    public static float MaliciousFraction = 0.33f;
+
+    //////////////////////////////////////View/////////////////////////////////////////
+
+    /**
+     *  At the view layer, we aim to acquire SignatureThreshold many honest nodes from a random-oracle model that can
+     *  provide views for a new node that is introduced to the system.
+     */
+    public static final boolean RandomizedBootstrapping = true;
+
+    //////////////////////////////////////Experiments/////////////////////////////////////////
+
+    /**
+     * This Proof-of-Validation experiment measures the probability of acquiring SignatureThreshold many malicious
+     * validators out of ValidatorThreshold many searches over the nodes skip-graph during validator
+     * acquisition for a transaction.
+     */
+    public static boolean MaliciousSuccessExperiment = false;
+    /**
+     * This Proof-of-Validation experiment measures the average number of honest nodes that can be acquired during
+     * validator-acquisition for a transaction.
+     */
+    public static boolean EfficiencyExperiment = false;
+    /**
+     * This Proof-of-Validation experiment measures the average number of online replicas a transaction has at any time
+     * during the simulation. The honest validators of an honest transaction are assumed to be replicas in this experiment.
+     */
+    public static boolean AvailabilityExperiment = true;
+    /**
+     * This experiment measures the chance of a node being online at any time slot. This directly depends on the churn
+     * model that was selected for the simulation.
+     */
+    public static boolean OnlineProbabilityExperiment = false;
+    /**
+     * This randomized bootstrapping experiment measures the probability of acquiring SignatureThreshold many malicious
+     * view introducers out of ValidatorThreshold many searches over the nodes skip-graph when a node goes online.
+     */
+    public static boolean btsMaliciousSuccessExperiment = false;
+    /**
+     * This randomized bootstrapping experiment measures the average number of honest view introducers a node acquires
+     * when it goes online in the system.
+     */
+    public static boolean btsEfficiencyExperiment = false;
+
     //////////////////////////////////////Evaluations/////////////////////////////////////////
     /**
      * Flag to enable the evaluation of locality awareness of replication. If enabled, reports the
