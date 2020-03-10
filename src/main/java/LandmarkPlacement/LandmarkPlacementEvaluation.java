@@ -11,8 +11,8 @@ import java.awt.*;
  */
 public abstract class LandmarkPlacementEvaluation
     {
-        private static double[][] averageDistanceToCloset = new double[SkipSimParameters.getTopologyNumbers()][SkipSimParameters.getLandmarksNum()];
-        private static int[][] totalRelocation = new int[SkipSimParameters.getTopologyNumbers()][SkipSimParameters.getLandmarksNum()];
+        private static double[][] averageDistanceToCloset = new double[SkipSimParameters.getTopologies()][SkipSimParameters.getLandmarksNum()];
+        private static int[][] totalRelocation = new int[SkipSimParameters.getTopologies()][SkipSimParameters.getLandmarksNum()];
         protected  double[] distanceToLandmark = new double[SkipSimParameters.getLandmarksNum()];
         protected  double[] maxDistanceToLandmark = new double[SkipSimParameters.getLandmarksNum()];
         protected  int[] coveringNodes = new int[SkipSimParameters.getLandmarksNum()];
@@ -36,10 +36,10 @@ public abstract class LandmarkPlacementEvaluation
                         averageDistanceToCloset[SkipSimParameters.getCurrentTopologyIndex()-1][i] =  averageDistanceToCloset[SkipSimParameters.getCurrentTopologyIndex()-1][i] / coveringNodes[i];
                     }
 
-                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
                     {
                         double[] totalAverageDistance = new double[SkipSimParameters.getLandmarksNum()];
-                        for(int i = 0; i < SkipSimParameters.getTopologyNumbers() ; i++)
+                        for(int i = 0; i < SkipSimParameters.getTopologies() ; i++)
                             for(int j = 0; j < SkipSimParameters.getLandmarksNum() ; j++)
                             {
                                 totalAverageDistance[j] += averageDistanceToCloset[i][j];
@@ -47,7 +47,7 @@ public abstract class LandmarkPlacementEvaluation
                         System.out.println("The evaluation of landmark placement for " + algName + " is done");
                         for(int j = 0; j < SkipSimParameters.getLandmarksNum() ; j++)
                             {
-                                totalAverageDistance[j] /= SkipSimParameters.getTopologyNumbers();
+                                totalAverageDistance[j] /= SkipSimParameters.getTopologies();
                                 System.out.println(totalAverageDistance[j] + " ");
                             }
                         System.out.println();
@@ -56,10 +56,10 @@ public abstract class LandmarkPlacementEvaluation
         public void relocationEvaluation(int landmarkIndex, int relocationCounter, String algName)
             {
                 totalRelocation[SkipSimParameters.getCurrentTopologyIndex()-1][landmarkIndex] = relocationCounter;
-                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
                     {
                         double[] averageRelocation = new double[SkipSimParameters.getLandmarksNum()];
-                        for(int i = 0; i < SkipSimParameters.getTopologyNumbers() ; i++)
+                        for(int i = 0; i < SkipSimParameters.getTopologies() ; i++)
                             for(int j = 0; j < SkipSimParameters.getLandmarksNum() ; j++)
                                 {
                                     averageRelocation[j] += totalRelocation[i][j];
@@ -67,7 +67,7 @@ public abstract class LandmarkPlacementEvaluation
                         System.out.println("The number of relocations for " + algName + " is:");
                         for(int j = 0; j < SkipSimParameters.getLandmarksNum() ; j++)
                             {
-                                averageRelocation[j] /= SkipSimParameters.getTopologyNumbers();
+                                averageRelocation[j] /= SkipSimParameters.getTopologies();
                                 System.out.println(averageRelocation[j] + " ");
                             }
                         System.out.println();

@@ -128,7 +128,7 @@ public abstract class NameIDAssignment
         }
 
 
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
             for (int i = 1; i <= SkipSimParameters.getLandmarksNum(); i++)
             {
@@ -138,7 +138,7 @@ public abstract class NameIDAssignment
                     if (key.length() == i)
                     {
                         double value = entry.getValue();
-                        System.out.println("Probability of having prefix length of " + key + " is " + (value / SkipSimParameters.getTopologyNumbers()));
+                        System.out.println("Probability of having prefix length of " + key + " is " + (value / SkipSimParameters.getTopologies()));
                     }
 
                 }

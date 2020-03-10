@@ -16,24 +16,24 @@ public class LookupEvaluation extends SkipGraph.LookupEvaluation
      * A local in memory database of average success rations per each topology, where the average is taken over all
      * the iterations (i.e., topologies)
      */
-    private static double[] successRatios = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] successRatios = new double[SkipSimParameters.getTopologies()];
     /**
      * A local in memory database of average search times each topology, where the average is taken over all
      * the iterations (i.e., topologies)
      */
-    private static double[] searchTimes = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] searchTimes = new double[SkipSimParameters.getTopologies()];
 
     /**
      * A local in memory database of average time of the successful searches per each topology, where the average is
      * taken over all the iterations (i.e., topologies)
      */
-    private static double[] successfulSearchTime = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] successfulSearchTime = new double[SkipSimParameters.getTopologies()];
 
     /**
      * A local in memory database of average time of the failed searches per each topology, where the average is
      * taken over all the iterations (i.e., topologies)
      */
-    private static double[] failureSearchTime = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] failureSearchTime = new double[SkipSimParameters.getTopologies()];
 
     /**
      * A buffer variable that keeps the total success ratio of the current topology over different time slots, and
@@ -113,7 +113,7 @@ public class LookupEvaluation extends SkipGraph.LookupEvaluation
                     + "\n for this topology: average successful search time " + successfulSearchTime[SkipSimParameters.getCurrentTopologyIndex() - 1]
                     + "\n for this topology: average unsuccessful search time " + failureSearchTime[SkipSimParameters.getCurrentTopologyIndex() - 1]);
             System.out.println("------------------------------------------------------------");
-            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
             {
                 double averageSuccessRate = 0;
                 double averageSearchTime = 0;
@@ -123,7 +123,7 @@ public class LookupEvaluation extends SkipGraph.LookupEvaluation
                 double searchTimeSD = 0;
                 double searchSuccessTimeSD = 0;
                 double searchFailureTimeSD = 0;
-                for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
                 {
                     averageSuccessRate += successRatios[i];
                     averageSearchTime += searchTimes[i];
@@ -131,12 +131,12 @@ public class LookupEvaluation extends SkipGraph.LookupEvaluation
                     averageFailureTime += failureSearchTime[i];
                 }
 
-                averageSuccessRate /= SkipSimParameters.getTopologyNumbers();
-                averageSearchTime /= SkipSimParameters.getTopologyNumbers();
-                averageFailureTime /= SkipSimParameters.getTopologyNumbers();
-                averageSuccessTime /= SkipSimParameters.getTopologyNumbers();
+                averageSuccessRate /= SkipSimParameters.getTopologies();
+                averageSearchTime /= SkipSimParameters.getTopologies();
+                averageFailureTime /= SkipSimParameters.getTopologies();
+                averageSuccessTime /= SkipSimParameters.getTopologies();
 
-                for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
                 {
                     successRatioSD += Math.pow(averageSuccessRate - successRatios[i], 2);
                     searchTimeSD += Math.pow(averageSearchTime - searchTimes[i], 2);
@@ -148,25 +148,25 @@ public class LookupEvaluation extends SkipGraph.LookupEvaluation
                 Success ration standard deviation
                  */
                 successRatioSD = Math.sqrt(successRatioSD);
-                successRatioSD /= SkipSimParameters.getTopologyNumbers();
+                successRatioSD /= SkipSimParameters.getTopologies();
 
                 /*
                 Search time standard deviation
                  */
                 searchTimeSD = Math.sqrt(searchTimeSD);
-                searchTimeSD /= SkipSimParameters.getTopologyNumbers();
+                searchTimeSD /= SkipSimParameters.getTopologies();
 
                 /*
                 Successful search time standard deviation
                  */
                 searchSuccessTimeSD = Math.sqrt(searchSuccessTimeSD);
-                searchSuccessTimeSD /= SkipSimParameters.getTopologyNumbers();
+                searchSuccessTimeSD /= SkipSimParameters.getTopologies();
 
                 /*
                 Unsuccessful search time standard deviation
                  */
                 searchFailureTimeSD = Math.sqrt(searchFailureTimeSD);
-                searchFailureTimeSD /= SkipSimParameters.getTopologyNumbers();
+                searchFailureTimeSD /= SkipSimParameters.getTopologies();
 
 
                 System.out.println("------------------------------------------------------------");

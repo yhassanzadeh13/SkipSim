@@ -7,23 +7,22 @@ public class Blockchain extends SkipSimParameters
 {
     public Blockchain()
     {
-        LOG = true;
         SimulationType = Constants.SimulationType.BLOCKCHAIN;
-        ChurnType = Constants.Churn.Type.ADVERSARIAL;
+        Topologies = 100;
         SystemCapacity = 1024;
-
-        TopologyNumbers = 100;
         LifeTime = 168;
-        MaliciousFraction = 0.16f;
-
-        ValidatorThreshold = 12;
-        SignatureThreshold = 1;
+        TXB_RATE = 1;
+        BlockchainProtocol = Constants.Protocol.LIGHTCHAIN;
 
         // Setting the churn model to FAST_DEBIAN
         SessionLengthScaleParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Scale;
         SessionLengthShapeParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Shape;
         InterarrivalScaleParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Scale;
         InterarrivalShapeParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Shape;
+
+        ChurnType = Constants.Churn.Type.ADVERSARIAL;
+        MaliciousFraction = 0.16f;
+        LOG = true;
     }
 }
 

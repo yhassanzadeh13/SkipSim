@@ -9,13 +9,12 @@ import java.io.FileWriter;
 
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class NameIDEvaluation
 {
 
-    public static double[][] Results = new double[SkipSimParameters.getTopologyNumbers()][SkipSimParameters.getLookupTableSize()];
+    public static double[][] Results = new double[SkipSimParameters.getTopologies()][SkipSimParameters.getLookupTableSize()];
     private static final String fileAddress = "NameID_Evaluation_" + SkipSimParameters.getNameIDAssignment() + "_" + LocalDateTime.now().getHour() + LocalDateTime.now().getMinute() + LocalDateTime.now()             .getSecond() + LocalDateTime
             .now().getDayOfMonth() + LocalDateTime.now().getMonth() + LocalDateTime.now().getYear() + ".txt";
 
@@ -95,7 +94,7 @@ public class NameIDEvaluation
                 //if(i == 4) System.out.println("Run " + Simulator.system.simIndex + "  mean " + Results[Simulator.system.simIndex-1][i] + " " + NumberOfNodes[i] + " " +  DistanceFromEachOther[i]);
             }
 
-            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
             {
                 System.out.println(fileAddress);
                 System.out.println("Writing name ID evaluation results to a file");
@@ -103,19 +102,19 @@ public class NameIDEvaluation
                 BufferedWriter out = new BufferedWriter(fstream);
                 for (int i = 0; i < SkipSimParameters.getLookupTableSize(); i++)
                 {
-                    for (int j = 0; j < SkipSimParameters.getTopologyNumbers(); j++)
+                    for (int j = 0; j < SkipSimParameters.getTopologies(); j++)
                     {
 
                         //Mean[i] = SumMeansOfAll[i] / Simulator.system.simRun;
                         Mean[i] = Mean[i] + Results[j][i];
                     }
 
-                    Mean[i] = Mean[i] / SkipSimParameters.getTopologyNumbers();
+                    Mean[i] = Mean[i] / SkipSimParameters.getTopologies();
                 }
 
                 for (int i = 0; i < SkipSimParameters.getLookupTableSize(); i++)
                 {
-                    for (int j = 0; j < SkipSimParameters.getTopologyNumbers(); j++)
+                    for (int j = 0; j < SkipSimParameters.getTopologies(); j++)
                     {
 
                         SD[i] = SD[i] + Math.pow((Results[j][i] - Mean[i]), 2);
@@ -167,7 +166,7 @@ public class NameIDEvaluation
 
                     if (SD[i] != 0)
                     {
-                        out.write(String.valueOf((int) (Math.sqrt(SD[i] / SkipSimParameters.getTopologyNumbers()))));
+                        out.write(String.valueOf((int) (Math.sqrt(SD[i] / SkipSimParameters.getTopologies()))));
                     }
                     else
                     {
@@ -180,7 +179,7 @@ public class NameIDEvaluation
 
                 //Close the output stream
                 out.close();
-                SkipSimParameters.getTopologyNumbers();
+                SkipSimParameters.getTopologies();
                 SkipSimParameters.getCurrentTopologyIndex();
                 System.out.println("Evaluation is done!");
 
@@ -202,7 +201,7 @@ public class NameIDEvaluation
 
     public void showresult(SkipGraphOperations sgo)
     {
-        for (int i = 0; i < SkipSimParameters.getTopologyNumbers() - 1; i++)
+        for (int i = 0; i < SkipSimParameters.getTopologies() - 1; i++)
         {
             for (int j = 0; j < SkipSimParameters.getLookupTableSize(); j++)
             {

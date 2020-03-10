@@ -287,7 +287,7 @@ public class FileInteractions
         System.out.println("Number of landmarks: " + SkipSimParameters.getLandmarksNum());
         System.out.println("Name ID size: " + SkipSimParameters.getNameIDLength());
         //System.out.println("Landmarks' prefix size: " + SkipSimParameters.);
-        System.out.println("Number of topologies: " + SkipSimParameters.getTopologyNumbers());
+        System.out.println("Number of topologies: " + SkipSimParameters.getTopologies());
         System.out.println("Size of domain: " + SkipSimParameters.getDomainSize());
         if (SkipSimParameters.getLifeTime() > 0)
         {

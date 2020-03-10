@@ -6,6 +6,10 @@ public class SkipSimParameters
 {
 
     /**
+     * The amount of transactions each node generates per time slot.
+     */
+    public static int TXB_RATE = 1;
+    /**
      * Boolean flag determining whether randomized lookup tests should be performed at the beginning
      * of each time slot.
      */
@@ -24,7 +28,7 @@ public class SkipSimParameters
      * for the validator acquisition for transactions (Proof-of-Validation). Also, this determines
      * how many view introducers will be searched on the Nodes skip-graph for randomized bootstrapping.
      */
-    public static int ValidatorThreshold = 1;
+    public static int ValidatorThreshold = 12;
     /**
      * SignatureThreshold determines how many validators are required to sign a transaction. If an
      * honest node acquires this many honest validators, the valid transaction is successfully validated.
@@ -58,6 +62,8 @@ public class SkipSimParameters
     */
 
     public static float MaliciousFraction = 0.33f;
+
+    public static String BlockchainProtocol = Constants.Protocol.LIGHTCHAIN;
 
     //////////////////////////////////////View/////////////////////////////////////////
 
@@ -241,9 +247,9 @@ public class SkipSimParameters
         return CurrentTopologyIndex;
     }
 
-    public static int getTopologyNumbers()
+    public static int getTopologies()
     {
-        return TopologyNumbers;
+        return Topologies;
     }
 
     public static int getDomainSize()
@@ -375,7 +381,7 @@ public class SkipSimParameters
     /**
      * Total number of the topologies that the simulation is executed over
      */
-    protected static int TopologyNumbers;
+    protected static int Topologies;
     /**
      * Index of the current topology under simulation
      */
@@ -745,7 +751,7 @@ public class SkipSimParameters
         {
             SD += Math.pow(inputArray[i] - inputArrayAverage, 2);
         }
-        SD = SD / SkipSimParameters.getTopologyNumbers();
+        SD = SD / SkipSimParameters.getTopologies();
         SD = Math.sqrt(SD);
 
         return SD;
@@ -757,7 +763,7 @@ public class SkipSimParameters
         {
             SD += Math.pow(inputArray[i] - inputArrayAverage, 2);
         }
-        SD = SD / SkipSimParameters.getTopologyNumbers();
+        SD = SD / SkipSimParameters.getTopologies();
         SD = Math.sqrt(SD);
 
         return SD;

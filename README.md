@@ -1,7 +1,8 @@
 # SkipSim
-The offline and scalable SkipGraph simulator. 
 
 SkipSim is a simulator that can be used for the design, implementation, and evaluation of the distributed Skip Graph-based protocols.
+
+Please see the [first tutorial](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial1.md) to get instructions on how to build, configure and run the SkipSim.
 
 ## Skip graph
 Skip-graph(s)

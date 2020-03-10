@@ -254,8 +254,8 @@ public class GUI extends Application
                         /*
                         Updating the progress bar
                          */
-                        progressBar.setProgress((float) (SkipSimParameters.getCurrentTopologyIndex()) / SkipSimParameters.getTopologyNumbers());
-                        lbl1.setText(SkipSimParameters.getCurrentTopologyIndex() + " of " + SkipSimParameters.getTopologyNumbers());
+                        progressBar.setProgress((float) (SkipSimParameters.getCurrentTopologyIndex()) / SkipSimParameters.getTopologies());
+                        lbl1.setText(SkipSimParameters.getCurrentTopologyIndex() + " of " + SkipSimParameters.getTopologies());
 
                         /*
                         Drawing Nodes and landmarks
@@ -266,7 +266,7 @@ public class GUI extends Application
                         /**
                          * stop the animation when all the simulation run
                          */
-                        if (SkipSimParameters.getCurrentTopologyIndex() >= SkipSimParameters.getTopologyNumbers())
+                        if (SkipSimParameters.getCurrentTopologyIndex() >= SkipSimParameters.getTopologies())
                         {
                             stop();
                         }
@@ -319,7 +319,7 @@ public class GUI extends Application
                 public void handle(long now)
                 {
                     SkipSimParameters.incrementSimIndex();
-                    progressBar.setProgress((float) (SkipSimParameters.getCurrentTopologyIndex()) / SkipSimParameters.getTopologyNumbers());
+                    progressBar.setProgress((float) (SkipSimParameters.getCurrentTopologyIndex()) / SkipSimParameters.getTopologies());
                     SkipGraphOperations sgo = simDB.fetchSkipGraphFromDB(SkipSimParameters.getCurrentTopologyIndex(), simulationName, isBlockChain);
 
 
@@ -372,10 +372,10 @@ public class GUI extends Application
 
                     gc.clearRect(0, 0, 660, 660);
                     drawNodesAndLandmarks(sgo, gc);
-                    lbl1.setText(SkipSimParameters.getCurrentTopologyIndex() + " of " + SkipSimParameters.getTopologyNumbers());
+                    lbl1.setText(SkipSimParameters.getCurrentTopologyIndex() + " of " + SkipSimParameters.getTopologies());
 
 
-                    if (SkipSimParameters.getCurrentTopologyIndex() >= SkipSimParameters.getTopologyNumbers())
+                    if (SkipSimParameters.getCurrentTopologyIndex() >= SkipSimParameters.getTopologies())
                     {
                         stop();
                     }

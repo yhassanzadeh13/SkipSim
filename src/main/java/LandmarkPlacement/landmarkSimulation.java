@@ -23,7 +23,7 @@ public class landmarkSimulation
     private void Simulation(SkipGraphOperations sgo, boolean generateCoordination)
     {
         SkipSimParameters.incrementSimIndex();
-        if (SkipSimParameters.getCurrentTopologyIndex() > SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() > SkipSimParameters.getTopologies())
         {
             System.exit(0);
         }

@@ -28,7 +28,7 @@ public class MultiObjectiveReplication extends SkipSimParameters
         Replication
          */
         sDataOwnerNumber = 10;
-        TopologyNumbers = 1;
+        Topologies = 1;
         LifeTime = 2160;
         SimulationType = Constants.SimulationType.DYNAMIC;
         ReplicationType = Constants.Replication.Type.PUBLIC;

@@ -1,6 +1,5 @@
 package Replication;
 
-import Evaluation.ReplicationEvaluation;
 import Simulator.SkipSimParameters;
 import SkipGraph.Node;
 import SkipGraph.SkipGraphOperations;
@@ -250,9 +249,9 @@ public class GLARAS extends LARAS
         averageW2 += bestW2;
         averageW3 += bestW3;
 
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
-            System.out.println("Best Average W1 " + averageW1 / SkipSimParameters.getTopologyNumbers() + " best Average W2 " + averageW2 / SkipSimParameters.getTopologyNumbers() + " best Average W3 " + averageW3 / SkipSimParameters.getTopologyNumbers());
+            System.out.println("Best Average W1 " + averageW1 / SkipSimParameters.getTopologies() + " best Average W2 " + averageW2 / SkipSimParameters.getTopologies() + " best Average W3 " + averageW3 / SkipSimParameters.getTopologies());
 
             for (int i = 0; i < 100; i++)
                 for (int j = 0; j < 100; j++)

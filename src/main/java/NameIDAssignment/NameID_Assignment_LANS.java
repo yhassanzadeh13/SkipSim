@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class NameID_Assignment_LANS extends NameIDAssignment
 {
     private static double[][] landmarksCoordination = new double[SkipSimParameters.getLandmarksNum()][SkipSimParameters.getLandmarksNum()];
-    private static double[] averageSearches = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] averageSearches = new double[SkipSimParameters.getTopologies()];
     private static double   numberOfSearches;
     private boolean[] alreadyAssignedNameID;
 
@@ -81,22 +81,22 @@ public class NameID_Assignment_LANS extends NameIDAssignment
                 initializationLock = true;
                 reset();
             }
-            if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+            if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
             {
                 double mean = 0;
-                for(int i = 0; i < SkipSimParameters.getTopologyNumbers() ; i++)
+                for(int i = 0; i < SkipSimParameters.getTopologies() ; i++)
                 {
                     mean += averageSearches[i];
                 }
 
-                mean /= SkipSimParameters.getTopologyNumbers();
+                mean /= SkipSimParameters.getTopologies();
                 double sd = 0;
-                for (int i = 0; i < SkipSimParameters.getTopologyNumbers() ; i++)
+                for (int i = 0; i < SkipSimParameters.getTopologies() ; i++)
                 {
                     sd = sd + Math.pow(averageSearches[i] - mean, 2);
                 }
 
-                sd = Math.sqrt(sd / SkipSimParameters.getTopologyNumbers());
+                sd = Math.sqrt(sd / SkipSimParameters.getTopologies());
 
                 System.out.println("Average number of searches for checking availability of a name ID: " + mean + " SD " + sd);
             }

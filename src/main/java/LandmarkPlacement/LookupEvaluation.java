@@ -14,9 +14,9 @@ import java.util.Random;
 
 public class LookupEvaluation
 {
-    public static double[] DistanceMeans = new double[SkipSimParameters.getTopologyNumbers()];
-    private static double[] NameIDsMeans = new double[SkipSimParameters.getTopologyNumbers()];
-    private static double[] NumIDsMeans = new double[SkipSimParameters.getTopologyNumbers()];
+    public static double[] DistanceMeans = new double[SkipSimParameters.getTopologies()];
+    private static double[] NameIDsMeans = new double[SkipSimParameters.getTopologies()];
+    private static double[] NumIDsMeans = new double[SkipSimParameters.getTopologies()];
     private double averageSearchPathOFThisTopology;
     private static double averageSearchPath = 0;
     private SkipGraphOperations sgo;
@@ -203,28 +203,28 @@ public class LookupEvaluation
             System.out.println("Average latency of " + iterations + " random searches " + Operation + " for this topology: " + (int) Mean + " average search path " + averageSearchPathOFThisTopology);
 
 
-            if (SkipSimParameters.getTopologyNumbers() == SkipSimParameters.getCurrentTopologyIndex())
+            if (SkipSimParameters.getTopologies() == SkipSimParameters.getCurrentTopologyIndex())
             {
                 Mean = 0;
-                for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
                 {
                     if (Operation.contains("nameID")) Mean += NameIDsMeans[i];
                     else Mean += NumIDsMeans[i];
                 }
-                Mean = Mean / SkipSimParameters.getTopologyNumbers();
+                Mean = Mean / SkipSimParameters.getTopologies();
 
-                for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
                 {
                     if (Operation.contains("nameID")) SD += Math.pow(Mean - NameIDsMeans[i], 2);
                     else SD += Math.pow(Mean - NumIDsMeans[i], 2);
 
                     //System.out.println(Means[i]);
                 }
-                SD = Math.sqrt(SD / SkipSimParameters.getTopologyNumbers());
+                SD = Math.sqrt(SD / SkipSimParameters.getTopologies());
 
                 Mean = Double.parseDouble(new DecimalFormat("##.##").format(Mean));
                 SD = Double.parseDouble(new DecimalFormat("##.##").format(SD));
-                System.out.println("Total average latency for " + Operation + " is: " + Mean + " Standard Deviation: " + SD + " \n " + " Average search path " + averageSearchPath/SkipSimParameters.getTopologyNumbers());
+                System.out.println("Total average latency for " + Operation + " is: " + Mean + " Standard Deviation: " + SD + " \n " + " Average search path " + averageSearchPath/SkipSimParameters.getTopologies());
 
             }
         }
@@ -339,21 +339,21 @@ public class LookupEvaluation
         //System.out.println("Mean Distance to neighbors " + mean);
 
 
-        if (SkipSimParameters.getTopologyNumbers() == SkipSimParameters.getCurrentTopologyIndex())
+        if (SkipSimParameters.getTopologies() == SkipSimParameters.getCurrentTopologyIndex())
         {
             mean = 0;
             int SD = 0;
-            for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+            for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
                 mean += DistanceMeans[i];
 
-            mean = mean / SkipSimParameters.getTopologyNumbers();
+            mean = mean / SkipSimParameters.getTopologies();
 
-            for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+            for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
             {
                 SD += Math.pow(mean - DistanceMeans[i], 2);
                 //System.out.println(Means[i]);
             }
-            SD = (int) Math.sqrt(SD / SkipSimParameters.getTopologyNumbers());
+            SD = (int) Math.sqrt(SD / SkipSimParameters.getTopologies());
 
             System.out.println("The average distance of each SkipGraph.Node to it's neighbor is  " + mean + " With the SD " + SD);
         }

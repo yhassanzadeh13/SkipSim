@@ -16,7 +16,7 @@ public abstract class Replication
 {
 
 
-    private static int[] replicationDegreeDataBase = new int[SkipSimParameters.getTopologyNumbers()];
+    private static int[] replicationDegreeDataBase = new int[SkipSimParameters.getTopologies()];
     public int[][] realDistance;
     public int[][] nameidsDistance;
     protected int[] regionPopulation;
@@ -683,9 +683,9 @@ public abstract class Replication
 
         } while (averageDelay > delayBound);
         replicationDegreeDataBase[SkipSimParameters.getCurrentTopologyIndex() - 1] = replicationDegree;
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
-            double average = (double) IntStream.of(replicationDegreeDataBase).sum() / SkipSimParameters.getTopologyNumbers();
+            double average = (double) IntStream.of(replicationDegreeDataBase).sum() / SkipSimParameters.getTopologies();
             double SD = SkipSimParameters.getStandardDeviation(replicationDegreeDataBase, average);
             System.out.println("Delay bound simulation to obtain average bount of " + delayBound + " ms " + " \n Average replication degree " + average + "\n algorithm name " + algorithmName + " SD " + SD + " NOR = " + SkipSimParameters.getDataRequesterNumber());
         }

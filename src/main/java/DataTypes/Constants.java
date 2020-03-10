@@ -9,6 +9,10 @@ public class Constants
 
     }
 
+    public class Protocol {
+        public static final String LIGHTCHAIN = "lightchain";
+    }
+
     public class SimulationType
     {
         public static final String STATIC = "static";

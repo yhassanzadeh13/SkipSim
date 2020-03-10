@@ -4,7 +4,6 @@ import DataTypes.Constants;
 import Simulator.SkipSimParameters;
 import SkipGraph.Node;
 import SkipGraph.Nodes;
-import SkipGraph.SkipGraphOperations;
 
 import static Simulator.Parameters.REPLICATION_TIME_INTERVAL;
 
@@ -19,18 +18,18 @@ public class ReplicationEvaluation
      * Average number of available replicas per each data owner over the entire simulation time for topology i
      */
     protected static double[] topologyAverageAvailableReplicas;
-    protected static double[] loadDataSet = new double[SkipSimParameters.getTopologyNumbers()];
+    protected static double[] loadDataSet = new double[SkipSimParameters.getTopologies()];
 
     ////////////////////////////LocalityAwareEvaluation////////////////////////////////////////////////////////////////
     /**
      * The delayDataSet[i] represents the average access delay of replicas in topology number i
      */
-    private static double[] delayDataSet = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] delayDataSet = new double[SkipSimParameters.getTopologies()];
 
     /**
      * The qosDataSet[i] represents the average QoS of replicas in topology number i
      */
-    private static double[] qosDataSet = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] qosDataSet = new double[SkipSimParameters.getTopologies()];
 
     /**
      * The nonZeroTimeSlots is used solely to compute the average access delay. The idea is to keep record of the
@@ -38,7 +37,7 @@ public class ReplicationEvaluation
      * nonZeroTimeSlots[i] corresponds to the number of timeslots with non-zero average access delay.
      * A zero average access delay at a given timeslot happens when all the replicas are offline
      */
-    private static double[] nonZeroTimeSlots = new double[SkipSimParameters.getTopologyNumbers()];
+    private static double[] nonZeroTimeSlots = new double[SkipSimParameters.getTopologies()];
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void availabilityEvaluation(int currentTime, Nodes nodes, String algorithmName)
@@ -46,7 +45,7 @@ public class ReplicationEvaluation
         int lastReplicationTime = SkipSimParameters.getReplicationTime() + (REPLICATION_TIME_INTERVAL * (SkipSimParameters.getDataOwnerNumber() - 1));
         if (topologyAverageAvailableReplicas == null)
         {
-            topologyAverageAvailableReplicas = new double[SkipSimParameters.getTopologyNumbers()];
+            topologyAverageAvailableReplicas = new double[SkipSimParameters.getTopologies()];
         }
         if(averageAvailableReplicas == null)
         {
@@ -98,23 +97,23 @@ public class ReplicationEvaluation
             /*
             if we are at the end of the last topology and hence to conclude the results
              */
-            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+            if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
             {
                 average = 0;
                 double sd = 0;
-                for (int topologyIndex = 0; topologyIndex < SkipSimParameters.getTopologyNumbers(); topologyIndex++)
+                for (int topologyIndex = 0; topologyIndex < SkipSimParameters.getTopologies(); topologyIndex++)
                 {
                     average += topologyAverageAvailableReplicas[topologyIndex];
                 }
 
-                average /= SkipSimParameters.getTopologyNumbers();
+                average /= SkipSimParameters.getTopologies();
 
-                for (int topologyIndex = 0; topologyIndex < SkipSimParameters.getTopologyNumbers(); topologyIndex++)
+                for (int topologyIndex = 0; topologyIndex < SkipSimParameters.getTopologies(); topologyIndex++)
                 {
                     sd += Math.pow(average - topologyAverageAvailableReplicas[topologyIndex], 2);
                 }
 
-                sd /= SkipSimParameters.getTopologyNumbers();
+                sd /= SkipSimParameters.getTopologies();
                 sd = Math.sqrt(sd);
                 System.out.println("----------------------------------------------------------");
                 System.out.println("RepEvaluation.java: Dynamic Replication Evaluation. Replication Algorithm: " + algorithmName);
@@ -155,7 +154,7 @@ public class ReplicationEvaluation
 			 simulation time
 			 Note that this is the average load of replicas, not all the nodes
 			*/
-            loadDataSet = new double[SkipSimParameters.getTopologyNumbers()];
+            loadDataSet = new double[SkipSimParameters.getTopologies()];
         }
 
         int replicaSum = 0;
@@ -180,17 +179,17 @@ public class ReplicationEvaluation
         /*
         We reached the end of simulation and hence we are done to conclude
          */
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
             double average = 0;
 
-            for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+            for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
             {
                 average += loadDataSet[i];
             }
 
             //System.out.println("Sum of average " + average);
-            average = average / SkipSimParameters.getTopologyNumbers();
+            average = average / SkipSimParameters.getTopologies();
             double sd = SkipSimParameters.getStandardDeviation(loadDataSet, average);
 
             System.out.println("The average load on a replica is " + average + " with the SD of " + sd);
@@ -209,9 +208,9 @@ public class ReplicationEvaluation
      */
     public static void setLoadDataSet(int index, double load, Class callerClass)
     {
-        if (loadDataSet == null || loadDataSet.length != SkipSimParameters.getTopologyNumbers())
+        if (loadDataSet == null || loadDataSet.length != SkipSimParameters.getTopologies())
         {
-            loadDataSet = new double[SkipSimParameters.getTopologyNumbers()];
+            loadDataSet = new double[SkipSimParameters.getTopologies()];
         }
         if (callerClass.getName().toLowerCase().contains("test"))
         {
@@ -380,7 +379,7 @@ public class ReplicationEvaluation
         /*
         Concluding this simulation if we are in the last time slot of the last topology
          */
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers()
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies()
                 && !SkipSimParameters.isDelayBasedSimulaton()
                 && (SkipSimParameters.isStaticSimulation() || currentTime == SkipSimParameters.getLifeTime() - 1))
         {
@@ -397,7 +396,7 @@ public class ReplicationEvaluation
             /*
             Taking the average access delay/QoS over all the topologies
              */
-            for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+            for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
             {
                 if(isQoS)
                 {
@@ -415,12 +414,12 @@ public class ReplicationEvaluation
             }
             overalDelay = (double) overalDelay / nonZeroDelayCount;
             double SD = 0;
-            for (int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+            for (int i = 0; i < SkipSimParameters.getTopologies(); i++)
             {
                 if(isQoS) SD += Math.pow(qosDataSet[i] - overalDelay, 2);
                 else SD += Math.pow(delayDataSet[i] - overalDelay, 2);
             }
-            SD = (double) SD / SkipSimParameters.getTopologyNumbers();
+            SD = (double) SD / SkipSimParameters.getTopologies();
             SD = Math.sqrt(SD);
             System.out.println("--------------------------------------------------");
             if(isQoS) System.out.println("QoS evaluation of replication:");

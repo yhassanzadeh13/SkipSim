@@ -363,31 +363,31 @@ Average interarrival time data
 
     public static void printChurnStochastics()
     {
-        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
             System.out.println("---------------------------------------------------------");
             System.out.println("ChurnStochastics.java");
             //System.out.println("Expected average of session length was " + SkipGraph.TopologyGenerator.sessionLengthDistribution.getNumericalMean());
-            System.out.println("Average number of online Nodes at a single time slot: " + totalAverageOfOnlineNodes / SkipSimParameters.getTopologyNumbers());
-            System.out.println("Average number of arrival at each timeslot: " + totalGeneratedInterArrivalTimes / SkipSimParameters.getTopologyNumbers());
-            System.out.println("Average number of departures at each timeslot: " + totalAverageDepartures / SkipSimParameters.getTopologyNumbers());
-            System.out.println("Average session length: " + totalAverageSessionLength / SkipSimParameters.getTopologyNumbers());
-            System.out.println("Average inter arrival time: " + totalAverageInterArrivalTime / SkipSimParameters.getTopologyNumbers());
+            System.out.println("Average number of online Nodes at a single time slot: " + totalAverageOfOnlineNodes / SkipSimParameters.getTopologies());
+            System.out.println("Average number of arrival at each timeslot: " + totalGeneratedInterArrivalTimes / SkipSimParameters.getTopologies());
+            System.out.println("Average number of departures at each timeslot: " + totalAverageDepartures / SkipSimParameters.getTopologies());
+            System.out.println("Average session length: " + totalAverageSessionLength / SkipSimParameters.getTopologies());
+            System.out.println("Average inter arrival time: " + totalAverageInterArrivalTime / SkipSimParameters.getTopologies());
             //System.out.println("Average updates a SkipGraph.Node obtained from another SkipGraph.Node was " + averageUpdatesOfANodeFromAnotherNode / Simulator.system.simRun);
             //System.out.println("Average number of replication candidates for a SkipGraph.Node was " + averageNumberofRepCandidates / Simulator.system.simRun);
-            System.out.println("Average number of lookups at each timeslot: " + averageLookups / SkipSimParameters.getTopologyNumbers());
+            System.out.println("Average number of lookups at each timeslot: " + averageLookups / SkipSimParameters.getTopologies());
             //System.out.println("Average timeout resolved failures: " + totalAverageResolveFailureTimeOuts / system.getTopologyNumbers());
             //System.out.println("Average #routing candidates per Node on the search path: " + totalAverageRoutingCandidates / SkipSimParameters.getTopologyNumbers());
             //System.out.println("Average #offline routing candidates per Node on the search path: " + totalAverageOfflineRoutingCandidates / SkipSimParameters.getTopologyNumbers());
             //System.out.println("Average success timeouts: " + totalAverageSuccessTimeOuts / SkipSimParameters.getTopologyNumbers());
             //System.out.println("Average failure timeouts: " + totalAverageFailureTimeOuts / SkipSimParameters.getTopologyNumbers());
             //System.out.println("Average bucket size per Node: " + totalAverageBucketSize / SkipSimParameters.getTopologyNumbers());
-            System.out.println("Average availability prediction error : " + overalAveragePredictionError / SkipSimParameters.getTopologyNumbers());
+            System.out.println("Average availability prediction error : " + overalAveragePredictionError / SkipSimParameters.getTopologies());
             if (SkipSimParameters.getAvailabilityPredictor().equals(Constants.Churn.AvailabilityPredictorAlgorithm.SWDBG))
             {
                 //System.out.println("Total unpredictable Nodes : " +  totalAverageUnpredictableNodes / system.getTopologyNumbers());
-                System.out.println("Average SWDBG state size: " + totalAverageSWDBGSize / SkipSimParameters.getTopologyNumbers());
-                System.out.println("Average SWDBG max state size: " + topologyMaxSWDBGSize / SkipSimParameters.getTopologyNumbers());
+                System.out.println("Average SWDBG state size: " + totalAverageSWDBGSize / SkipSimParameters.getTopologies());
+                System.out.println("Average SWDBG max state size: " + topologyMaxSWDBGSize / SkipSimParameters.getTopologies());
             }
             System.out.println("---------------------------------------------------------");
 

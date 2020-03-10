@@ -192,46 +192,49 @@ public class DynamicSimulation
                 Node peer = ((Node) sgo.getTG().mNodeSet.getNode(i));
                 if (peer.isOnline())
                 {
-                    Transaction tx = new Transaction(0, i);
-                    sgo.addTXBtoLedger(tx, currentTime, true);
-                    tx.acquireValidators(sgo);
-                    // Inform the malicious success experiment that a malicious peer has created a transaction
-                    // and acquired validators.
-                    if(SkipSimParameters.MaliciousSuccessExperiment)
-                    {
-                        MaliciousSuccessExperiment.informAcquisition(peer, tx, currentTime);
+                    for(int j = 0; j < SkipSimParameters.TXB_RATE; j++) {
+                        Transaction tx = new Transaction(0, i);
+                        sgo.addTXBtoLedger(tx, currentTime, true);
+                        tx.acquireValidators(sgo);
+                        // Inform the malicious success experiment that a malicious peer has created a transaction
+                        // and acquired validators.
+                        if(SkipSimParameters.BlockchainProtocol.equals(Constants.Protocol.LIGHTCHAIN)) {
+                            if (SkipSimParameters.MaliciousSuccessExperiment) {
+                                MaliciousSuccessExperiment.informAcquisition(peer, tx, currentTime);
+                            }
+                            if (SkipSimParameters.EfficiencyExperiment) {
+                                EfficiencyExperiment.informAcquisition(peer, tx, currentTime);
+                            }
+                            if (SkipSimParameters.AvailabilityExperiment) {
+                                AvailabilityExperiment.registerTransaction(peer, tx, currentTime);
+                            }
+                        }
+                        //System.out.println("Node " + i + "added a new transaction");
                     }
-                    if(SkipSimParameters.EfficiencyExperiment)
-                    {
-                        EfficiencyExperiment.informAcquisition(peer, tx, currentTime);
-                    }
-                    if(SkipSimParameters.AvailabilityExperiment)
-                    {
-                        AvailabilityExperiment.registerTransaction(peer, tx, currentTime);
-                    }
-                    //System.out.println("Node " + i + "added a new transaction");
                 }
             }
             /*
             Performing experiments.
              */
-            if(SkipSimParameters.MaliciousSuccessExperiment) {
-                MaliciousSuccessExperiment.calculateResults(currentTime);
-            }
-            if(SkipSimParameters.EfficiencyExperiment) {
-                EfficiencyExperiment.calculateResults(currentTime);
-            }
-            if(SkipSimParameters.AvailabilityExperiment) {
-                AvailabilityExperiment.calculateResults(currentTime);
-            }
-            if(SkipSimParameters.OnlineProbabilityExperiment) {
-                OnlineProbabilityExperiment.calculateResults(sgo, currentTime);
-            }
-            if(SkipSimParameters.btsEfficiencyExperiment) {
-                BtsEfficiencyExperiment.calculateResults(currentTime);
-            }
-            if(SkipSimParameters.btsMaliciousSuccessExperiment) {
-                BtsMaliciousSuccessExperiment.calculateResults(currentTime);
+            if(SkipSimParameters.BlockchainProtocol.equals(Constants.Protocol.LIGHTCHAIN)) {
+                if (SkipSimParameters.MaliciousSuccessExperiment) {
+                    MaliciousSuccessExperiment.calculateResults(currentTime);
+                }
+                if (SkipSimParameters.EfficiencyExperiment) {
+                    EfficiencyExperiment.calculateResults(currentTime);
+                }
+                if (SkipSimParameters.AvailabilityExperiment) {
+                    AvailabilityExperiment.calculateResults(currentTime);
+                }
+                if (SkipSimParameters.OnlineProbabilityExperiment) {
+                    OnlineProbabilityExperiment.calculateResults(sgo, currentTime);
+                }
+                if (SkipSimParameters.btsEfficiencyExperiment) {
+                    BtsEfficiencyExperiment.calculateResults(currentTime);
+                }
+                if (SkipSimParameters.btsMaliciousSuccessExperiment) {
+                    BtsMaliciousSuccessExperiment.calculateResults(currentTime);
+                }
             }
         }
 
@@ -285,7 +288,7 @@ public class DynamicSimulation
         Whatever needs to be done at the end of the last time slot of the LAST TOPOLOGIES
          should be placed within the following if statement body
          */
-        if (currentTime == SkipSimParameters.getLifeTime() - 1 && SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+        if (currentTime == SkipSimParameters.getLifeTime() - 1 && SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
         {
             if (Nodes.getOveralAverageStorageCapacity() > 0)
                 System.out.println("DynamicSimulation.java: Overall average storage capacity of the nodes: " + Nodes.getOveralAverageStorageCapacity());
@@ -391,7 +394,8 @@ public class DynamicSimulation
             previousArrivalTime = entry.getArrivalTime();
 
             // Let the node acquire its view introducers to construct its view.
-            if(SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
+            if(SkipSimParameters.BlockchainProtocol.equals(Constants.Protocol.LIGHTCHAIN)
+                    && SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
                     && SkipSimParameters.RandomizedBootstrapping) {
                 arrivingNode.acquireViewIntroducers(sgo);
                 if(SkipSimParameters.btsEfficiencyExperiment) {
@@ -455,7 +459,8 @@ public class DynamicSimulation
 
 
                 // Let the node acquire its view introducers to construct its view.
-                if(SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
+                if(SkipSimParameters.BlockchainProtocol.equals(Constants.Protocol.LIGHTCHAIN)
+                        && SkipSimParameters.getSimulationType().equalsIgnoreCase(Constants.SimulationType.BLOCKCHAIN)
                         && SkipSimParameters.RandomizedBootstrapping) {
                     arrivingNode.acquireViewIntroducers(sgo);
                     if(SkipSimParameters.btsEfficiencyExperiment) {

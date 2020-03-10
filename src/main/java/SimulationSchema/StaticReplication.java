@@ -16,7 +16,7 @@ public class StaticReplication extends SkipSimParameters
         Replication
          */
         sDataOwnerNumber = 1;
-        TopologyNumbers = 1;
+        Topologies = 1;
 
         SimulationType = Constants.SimulationType.STATIC;
         ReplicationType = Constants.Replication.Type.PUBLIC;

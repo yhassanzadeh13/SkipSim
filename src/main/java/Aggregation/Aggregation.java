@@ -15,10 +15,10 @@ public class Aggregation
         protected int initiator;
         protected final double E = 8;
         protected final double U = 1;
-        private static double[] energyCosts = new double[SkipSimParameters.getTopologyNumbers()];
-        private static double[] latency = new double[SkipSimParameters.getTopologyNumbers()];
-        private static double[] childAvergae = new double[SkipSimParameters.getTopologyNumbers()];
-        private static double[] parentNumber = new double[SkipSimParameters.getTopologyNumbers()];
+        private static double[] energyCosts = new double[SkipSimParameters.getTopologies()];
+        private static double[] latency = new double[SkipSimParameters.getTopologies()];
+        private static double[] childAvergae = new double[SkipSimParameters.getTopologies()];
+        private static double[] parentNumber = new double[SkipSimParameters.getTopologies()];
         protected int findRoot()
             {
                 int root = -1;
@@ -99,20 +99,20 @@ public class Aggregation
                 energyCosts[SkipSimParameters.getCurrentTopologyIndex() - 1]     = totalEnergy/parents.size();
                 parentNumber[SkipSimParameters.getCurrentTopologyIndex() - 1]    = parents.size();
                 childAvergae[SkipSimParameters.getCurrentTopologyIndex() - 1]    = childAve / parents.size();
-                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
                     {
                         totalEnergy = 0;
                         childAve = 0;
                         double totalParent = 0;
-                        for(int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                        for(int i = 0; i < SkipSimParameters.getTopologies(); i++)
                             {
                                 totalEnergy  += energyCosts[i];
                                 childAve     += childAvergae[i];
                                 totalParent  += parentNumber[i];
                             }
-                        System.out.println(algName + " average energy cost on a parent " + totalEnergy/ SkipSimParameters.getTopologyNumbers());
-                        System.out.println(algName + " average number of child " + childAve/ SkipSimParameters.getTopologyNumbers());
-                        System.out.println(algName + " average number of parents " +totalParent/ SkipSimParameters.getTopologyNumbers());
+                        System.out.println(algName + " average energy cost on a parent " + totalEnergy/ SkipSimParameters.getTopologies());
+                        System.out.println(algName + " average number of child " + childAve/ SkipSimParameters.getTopologies());
+                        System.out.println(algName + " average number of parents " +totalParent/ SkipSimParameters.getTopologies());
                     }
             }
         protected void latencyEvaluation(String algName)
@@ -145,14 +145,14 @@ public class Aggregation
                         totalLatency = Math.max(latency, totalLatency);
                     }
                 latency[SkipSimParameters.getCurrentTopologyIndex() - 1] = totalLatency/ SkipSimParameters.getSystemCapacity();
-                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologyNumbers())
+                if(SkipSimParameters.getCurrentTopologyIndex() == SkipSimParameters.getTopologies())
                     {
                         totalLatency = 0;
-                        for(int i = 0; i < SkipSimParameters.getTopologyNumbers(); i++)
+                        for(int i = 0; i < SkipSimParameters.getTopologies(); i++)
                             {
                                 totalLatency += latency[i];
                             }
-                        System.out.println(algName + "Average maximum latency " + totalLatency/ SkipSimParameters.getTopologyNumbers());
+                        System.out.println(algName + "Average maximum latency " + totalLatency/ SkipSimParameters.getTopologies());
                     }
 
             }
