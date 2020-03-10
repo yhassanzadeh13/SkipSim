@@ -54,6 +54,7 @@ public class Constants
             {
                 public class Slow
                 {
+                    public static final String Name = "SlowDebian";
                     public class SessionLength
                     {
                         public static final double Shape = 0.38;
@@ -69,6 +70,7 @@ public class Constants
 
                 public class Fast
                 {
+                    public static final String Name = "FastDebian";
                     public class SessionLength
                     {
                         public static final double Shape = 0.38;
@@ -86,6 +88,7 @@ public class Constants
 
             public class Flatout
             {
+                public static final String Name = "Flatout";
                 public class SessionLength
                 {
                     public static final double Shape = 0.59;

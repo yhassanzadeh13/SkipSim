@@ -295,6 +295,28 @@ public class SkipSimParameters
      */
     protected static int LifeTime = 72;
 
+    public void setChurnModel(String churnModel) {
+        switch(churnModel) {
+            case Constants.Churn.Model.Debian.Fast.Name:
+                SessionLengthScaleParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Scale;
+                SessionLengthShapeParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Shape;
+                InterarrivalScaleParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Scale;
+                InterarrivalShapeParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Shape;
+            break;
+            case Constants.Churn.Model.Debian.Slow.Name:
+                SessionLengthScaleParameter = Constants.Churn.Model.Debian.Slow.SessionLength.Scale;
+                SessionLengthShapeParameter = Constants.Churn.Model.Debian.Slow.SessionLength.Shape;
+                InterarrivalScaleParameter = Constants.Churn.Model.Debian.Slow.SessionInterarrival.Scale;
+                InterarrivalShapeParameter = Constants.Churn.Model.Debian.Slow.SessionInterarrival.Shape;
+            break;
+            case Constants.Churn.Model.Flatout.Name:
+                SessionLengthScaleParameter = Constants.Churn.Model.Flatout.SessionLength.Scale;
+                SessionLengthShapeParameter = Constants.Churn.Model.Flatout.SessionLength.Shape;
+                InterarrivalScaleParameter = Constants.Churn.Model.Flatout.SessionInterarrival.Scale;
+                InterarrivalShapeParameter = Constants.Churn.Model.Flatout.SessionInterarrival.Shape;
+            break;
+        }
+    }
 
     /**
      * Intterarrival distribution is the distribution of the time between two consecutive arrivals

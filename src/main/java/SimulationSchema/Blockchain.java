@@ -15,10 +15,7 @@ public class Blockchain extends SkipSimParameters
         BlockchainProtocol = Constants.Protocol.LIGHTCHAIN;
 
         // Setting the churn model to FAST_DEBIAN
-        SessionLengthScaleParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Scale;
-        SessionLengthShapeParameter = Constants.Churn.Model.Debian.Fast.SessionLength.Shape;
-        InterarrivalScaleParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Scale;
-        InterarrivalShapeParameter = Constants.Churn.Model.Debian.Fast.SessionInterarrival.Shape;
+        setChurnModel(Constants.Churn.Model.Debian.Fast.Name);
 
         ChurnType = Constants.Churn.Type.ADVERSARIAL;
         MaliciousFraction = 0.16f;
