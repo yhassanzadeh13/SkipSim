@@ -138,6 +138,6 @@ public class SchemaManager {
 
 ## Tutorials
 Please refer to the tutorials for getting familiar with SkipSim quickly:
-1. [Performing an efficiency experiment](https://github.com/yhassanzadeh13/SkipSim/Tutorial1.md)
-2. [Performing randomized look-up tests](https://github.com/yhassanzadeh13/SkipSim/Tutorial2.md)
-3. [Using the skip-graph](https://github.com/yhassanzadeh13/SkipSim/Tutorial3.md)
+1. [Performing an efficiency experiment](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial1.md)
+2. [Performing randomized look-up tests](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial2.md)
+3. [Using the skip-graph](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial3.md)
