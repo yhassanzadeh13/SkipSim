@@ -1,3 +1,5 @@
+**Important note:** This repository has been **archieved**. Please go to [p2pseala/skipsim](https://github.com/p2pseala/skipsim) for stable version. 
+
 # SkipSim
 
 SkipSim is a simulator that can be used for the design, implementation, and evaluation of the distributed Skip Graph-based protocols.
