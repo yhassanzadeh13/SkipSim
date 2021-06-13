@@ -1,4 +1,3 @@
-**Important note:** This repository has been **archieved**. Please go to [p2pseala/skipsim](https://github.com/p2pseala/skipsim) for stable version. 
 
 # SkipSim
 
@@ -144,3 +143,6 @@ Please refer to the tutorials for getting familiar with SkipSim quickly:
 1. [Performing an efficiency experiment](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial1.md)
 2. [Performing randomized look-up tests](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial2.md)
 3. [Using the skip-graph](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial3.md)
+
+## Publications
+- Hassanzadeh-Nazarabadi, Y., Şahin, A. U., Özkasap, Ö., & Küpçü, A. (2020, May). SkipSim: Scalable Skip Graph Simulator. In 2020 IEEE International Conference on Blockchain and Cryptocurrency (ICBC) (pp. 1-2). IEEE. [(PDF)](https://arxiv.org/pdf/2007.13200.pdf).
