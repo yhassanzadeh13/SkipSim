@@ -145,4 +145,18 @@ Please refer to the tutorials for getting familiar with SkipSim quickly:
 3. [Using the skip-graph](https://github.com/yhassanzadeh13/SkipSim/blob/master/Tutorial3.md)
 
 ## Publications
-- Hassanzadeh-Nazarabadi, Y., Şahin, A. U., Özkasap, Ö., & Küpçü, A. (2020, May). SkipSim: Scalable Skip Graph Simulator. In 2020 IEEE International Conference on Blockchain and Cryptocurrency (ICBC) (pp. 1-2). IEEE. [(PDF)](https://arxiv.org/pdf/2007.13200.pdf).
+- Hassanzadeh-Nazarabadi, Yahya, Ali Utkan Şahin, Öznur Özkasap, and Alptekin Küpçü. "SkipSim: Scalable Skip Graph Simulator." In 2020 IEEE International Conference on Blockchain and Cryptocurrency (ICBC), pp. 1-2. IEEE, 2020. [(PDF)](https://arxiv.org/pdf/2007.13200.pdf).
+
+## Citation
+For citing this implementation in a publication please use:
+_Hassanzadeh-Nazarabadi, Yahya, Ali Utkan Şahin, Öznur Özkasap, and Alptekin Küpçü. "SkipSim: Scalable Skip Graph Simulator." In 2020 IEEE International Conference on Blockchain and Cryptocurrency (ICBC), pp. 1-2. IEEE, 2020._
+```
+@inproceedings{hassanzadeh2020skipsim,
+  title={SkipSim: Scalable Skip Graph Simulator},
+  author={Hassanzadeh-Nazarabadi, Yahya and {\c{S}}ahin, Ali Utkan and {\"O}zkasap, {\"O}znur and K{\"u}p{\c{c}}{\"u}, Alptekin},
+  booktitle={2020 IEEE International Conference on Blockchain and Cryptocurrency (ICBC)},
+  pages={1--2},
+  year={2020},
+  organization={IEEE}
+}
+```
